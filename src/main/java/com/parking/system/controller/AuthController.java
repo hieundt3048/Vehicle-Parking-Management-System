@@ -39,7 +39,7 @@ public class AuthController {
             // Tạo token đơn giản (Base64 encode của username:password)
             // Trong production, nên dùng JWT token
             String token = Base64.getEncoder().encodeToString(
-                (user.getUsername() + ":" + user.getId()).getBytes()
+                (request.getUsername() + ":" + request.getPassword()).getBytes()
             );
             
             // Tạo response (ẩn password)
