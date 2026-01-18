@@ -75,13 +75,13 @@ public class ParkingZoneController {
     
     /**
      * API: Trả về danh sách các slot đang trống
-     * GET /api/zones/slots/available
+     * GET /api/zones/available-slots
      * Query params: zoneId (optional) - để lọc theo zone
      * 
      * Note: Gọi trực tiếp ParkingSlotService (không qua ZoneService)
      * để tránh coupling không cần thiết
      */
-    @GetMapping("/slots/available")
+    @GetMapping("/available-slots")
     public ResponseEntity<ApiResponse<AvailableSlotsResponse>> getAvailableSlots(
             @RequestParam(required = false) Long zoneId) {
         
