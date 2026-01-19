@@ -16,7 +16,7 @@ Hệ thống quản lý bãi xe đơn giản với Spring Boot và SQL Server - 
 
 ```
 com.parking.system
-├── entity/              # Các Entity (User, ParkingZone, ParkingSlot, Ticket, MonthlyTicket)
+├── entity/              # Các Entity (User, ParkingZone, ParkingSlot, Ticket)
 ├── repository/          # Repository interfaces
 ├── service/             # Business logic đơn giản
 ├── controller/          # REST API Controllers cơ bản
@@ -88,7 +88,7 @@ GET /api/zones
 
 #### Lấy slot trống
 ```
-GET /api/zones/slots/available
+GET /api/zones/available-slots
 ```
 
 #### Cập nhật trạng thái slot
@@ -104,13 +104,13 @@ POST /api/tickets
 {
   "licensePlate": "30A-12345",
   "vehicleType": "MOTORBIKE",
-  "slotId": 1
+  "zoneId": 1
 }
 ```
 
 #### Xử lý xe ra
 ```
-POST /api/tickets/{ticketId}/exit
+POST /api/tickets/{ticketId}/checkout
 ```
 
 #### Lấy tất cả vé
@@ -118,29 +118,31 @@ POST /api/tickets/{ticketId}/exit
 GET /api/tickets
 ```
 
-### 4. Vé tháng (`/api/monthly-tickets`)
-
-#### Đăng ký vé tháng
-```
-POST /api/monthly-tickets
-{
-  "cardId": "MT001",
-  "licensePlate": "30A-99999",
-  "vehicleType": "MOTORBIKE",
-  "monthlyFee": 300000
-}
-```
-
-#### Lấy tất cả vé tháng
-```
-GET /api/monthly-tickets
-```
-
-### 5. Báo cáo (`/api/reports`)
+### 4. Báo cáo (`/api/reports`)
 
 #### Báo cáo doanh thu tổng
 ```
 GET /api/reports
+```
+
+#### Báo cáo doanh thu theo ngày
+```
+GET /api/reports/revenue/daily?date=2026-01-18
+```
+
+#### Báo cáo doanh thu theo tháng
+```
+GET /api/reports/revenue/monthly?month=1&year=2026
+```
+
+#### Báo cáo theo ca làm việc
+```
+GET /api/reports/revenue/shifts?date=2026-01-18
+```
+
+#### Thống kê trạng thái bãi xe
+```
+GET /api/reports/occupancy
 ```
 
 ## Authentication
@@ -175,12 +177,9 @@ curl -u admin:admin123 http://localhost:8080/api/zones
 - Xe máy: 5,000 VNĐ/giờ
 - Ô tô: 10,000 VNĐ/giờ
 
-### 4. Vé tháng
-- Đăng ký vé tháng
-- Xem tất cả vé tháng
-
-### 5. Báo cáo (Admin)
-- Xem tổng doanh thu và số vé
+### 4. Báo cáo (Admin)
+- Xem tổng doanh thu, doanh thu theo ngày/tháng/ca
+- Giám sát trạng thái chiếm dụng bãi xe
 
 ## Lưu ý
 

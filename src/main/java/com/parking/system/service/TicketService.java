@@ -202,8 +202,6 @@ public class TicketService {
      * Lấy tất cả vé đang hoạt động
      */
     public List<Ticket> getActiveTickets() {
-        return ticketRepository.findByIdAndStatus(null, Ticket.Status.ACTIVE)
-            .map(List::of)
-            .orElseGet(List::of);
+        return ticketRepository.findByStatus(Ticket.Status.ACTIVE);
     }
 }

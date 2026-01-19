@@ -2,6 +2,8 @@ package com.parking.system.entity;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -32,6 +34,7 @@ public class ParkingZone {
     private Integer totalSlots;
     
     @OneToMany(mappedBy = "zone", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<ParkingSlot> slots;
     
     public enum VehicleType {

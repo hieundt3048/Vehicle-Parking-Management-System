@@ -13,7 +13,7 @@ import {
   ParkingSquare
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { authAPI, zonesAPI, reportsAPI } from '../services/api';
+import { authAPI, reportsAPI, zonesAPI } from '../services/api';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -24,6 +24,7 @@ export default function Dashboard() {
     availableSlots: 0,
     dailyRevenue: '0đ'
   });
+  const [lastUpdated, setLastUpdated] = useState(null);
   const [user, setUser] = useState(null);
 
   // Load thông tin user từ localStorage
@@ -34,44 +35,67 @@ export default function Dashboard() {
     }
   }, []);
 
+  // Hàm tiện ích: lấy ngày theo múi giờ local dạng yyyy-MM-dd
+  const getTodayLocalDateString = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   // Load thống kê từ API
   useEffect(() => {
     const loadStats = async () => {
       try {
-        // Lấy thông tin vị trí trống
-        const slotsResponse = await zonesAPI.getAvailableSlots();
-        const slotsData = slotsResponse.data.data || slotsResponse.data;
-        const availableCount = slotsData.total || slotsData.slots?.length || 0;
-        
-        // Lấy doanh thu ngày
-        try {
-          const today = new Date().toISOString().split('T')[0];
-          const revenueResponse = await reportsAPI.getDailyRevenue(today);
-          const revenueData = revenueResponse.data.data || revenueResponse.data;
-          const revenue = revenueData.revenue || 0;
+        const today = getTodayLocalDateString();
 
-          setStats({
-            totalSlots: 200,
-            occupiedSlots: 200 - availableCount,
-            availableSlots: availableCount,
-            dailyRevenue: `${revenue.toLocaleString('vi-VN')}đ`
-          });
-        } catch (revenueError) {
-          console.error('Error loading revenue:', revenueError);
-          setStats({
-            totalSlots: 200,
-            occupiedSlots: 200 - availableCount,
-            availableSlots: availableCount,
-            dailyRevenue: '0đ'
-          });
+        // Gọi song song nhưng xử lý lỗi từng API để tránh "đổ vỡ dây chuyền"
+        const [zonesResult, revenueResult] = await Promise.allSettled([
+          zonesAPI.getAll(),
+          reportsAPI.getDailyRevenue(today)
+        ]);
+
+        // Xử lý dữ liệu khu vực & slot
+        let zonesData = [];
+        if (zonesResult.status === 'fulfilled') {
+          const rawZones = zonesResult.value.data.data || zonesResult.value.data;
+          if (Array.isArray(rawZones)) {
+            zonesData = rawZones;
+          } else {
+            console.error('Zones data is not an array:', rawZones);
+          }
+        } else {
+          console.error('Error loading zones:', zonesResult.reason);
         }
+
+        const allSlots = zonesData.flatMap(zone => Array.isArray(zone.slots) ? zone.slots : []);
+        const totalSlots = allSlots.length;
+        const occupiedSlots = allSlots.filter(s => s.status === 'OCCUPIED').length;
+        const availableSlots = allSlots.filter(s => s.status === 'AVAILABLE').length;
+
+        // Xử lý dữ liệu doanh thu (có thể lỗi nhưng không chặn hiển thị slot)
+        let revenueValue = 0;
+        if (revenueResult.status === 'fulfilled') {
+          const revenueData = revenueResult.value.data.data || revenueResult.value.data;
+          revenueValue = revenueData.revenue || 0;
+        } else {
+          console.error('Error loading daily revenue:', revenueResult.reason);
+        }
+
+        setStats({
+          totalSlots,
+          occupiedSlots,
+          availableSlots,
+          dailyRevenue: `${revenueValue.toLocaleString('vi-VN')}đ`
+        });
+        setLastUpdated(new Date());
       } catch (error) {
         console.error('Error loading stats:', error);
-        // Sử dụng dữ liệu mẫu nếu API lỗi
         setStats({
-          totalSlots: 200,
-          occupiedSlots: 145,
-          availableSlots: 55,
+          totalSlots: 0,
+          occupiedSlots: 0,
+          availableSlots: 0,
           dailyRevenue: '0đ'
         });
       }
@@ -209,7 +233,11 @@ export default function Dashboard() {
         <header className="h-16 bg-white shadow-sm flex items-center justify-between px-6 sticky top-0 z-10">
           <div>
             <h2 className="text-xl font-bold text-slate-800">Tổng quan hệ thống</h2>
-            <p className="text-xs text-slate-500">Cập nhật lần cuối: 10 phút trước</p>
+            <p className="text-xs text-slate-500">
+              {lastUpdated
+                ? `Cập nhật lần cuối: ${lastUpdated.toLocaleTimeString('vi-VN')}`
+                : 'Đang tải dữ liệu thống kê...'}
+            </p>
           </div>
           
           <div className="flex items-center gap-4">

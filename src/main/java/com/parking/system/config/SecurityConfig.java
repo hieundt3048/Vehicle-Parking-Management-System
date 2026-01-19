@@ -57,7 +57,8 @@ public class SecurityConfig {
             auth.requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll();
             // Các quy tắc bảo mật
             auth.requestMatchers("/api/auth/**").permitAll();
-            auth.requestMatchers("/api/reports/**").hasRole("ADMIN");
+            // Cho phép cả ADMIN và EMPLOYEE xem các báo cáo (bao gồm doanh thu)
+            auth.requestMatchers("/api/reports/**").hasAnyRole("ADMIN", "EMPLOYEE");
             auth.requestMatchers("/api/**").hasAnyRole("ADMIN", "EMPLOYEE");
             auth.requestMatchers("/**").permitAll(); // Cho phép tất cả để frontend có thể truy cập
         });

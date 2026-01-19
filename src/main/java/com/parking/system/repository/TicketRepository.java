@@ -13,5 +13,8 @@ import com.parking.system.entity.Ticket;
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
     Optional<Ticket> findByIdAndStatus(Long id, Ticket.Status status);
     Optional<Ticket> findByLicensePlateAndStatus(String licensePlate, Ticket.Status status);
+    List<Ticket> findByStatus(Ticket.Status status);
     List<Ticket> findByStatusAndEntryTimeBetween(Ticket.Status status, LocalDateTime start, LocalDateTime end);
+    List<Ticket> findByStatusAndExitTimeBetween(Ticket.Status status, LocalDateTime start, LocalDateTime end);
+    long countByStatus(Ticket.Status status);
 }
