@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,15 +27,17 @@ import com.parking.system.service.ParkingZoneService;
 
 /**
  * Controller xử lý các API liên quan đến Parking Zone và Slot
+ * Tuân thủ Single Responsibility: chỉ xử lý HTTP requests/responses
  */
 @RestController
 @RequestMapping("/api/zones")
+@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174", "http://localhost:3000"})
 public class ParkingZoneController {
     
     private final ParkingZoneService zoneService;
     private final ParkingSlotService slotService;
     
-    // Constructor injection
+    // Constructor injection - tuân thủ Dependency Inversion Principle
     public ParkingZoneController(ParkingZoneService zoneService, ParkingSlotService slotService) {
         this.zoneService = zoneService;
         this.slotService = slotService;

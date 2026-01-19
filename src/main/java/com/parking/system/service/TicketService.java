@@ -118,7 +118,7 @@ public class TicketService {
         Ticket savedTicket = ticketRepository.save(ticket);
         
         // Log thông tin (nếu cần debug)
-        System.out.println("✅ Check-in thành công: " + 
+        System.out.println("Check-in thành công: " + 
             "Vé #" + savedTicket.getId() + 
             ", Biển số: " + savedTicket.getLicensePlate() + 
             ", Slot: " + availableSlot.getSlotNumber() + 

@@ -11,7 +11,8 @@ Hệ thống quản lý bãi xe đơn giản với Spring Boot và SQL Server - 
 - SQL Server
 - Lombok
 - Maven
-
+cd E:\tai\Vehicle Parking Management System\parkingBE\parking-frontend && npm run dev
+cd E:\tai\Vehicle Parking Management System\parkingBE && mvn spring-boot:run
 ## Cấu trúc dự án
 
 ```
