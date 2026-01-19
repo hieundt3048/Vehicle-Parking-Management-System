@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import { Search, Receipt, Clock, Calendar, CheckCircle, ArrowLeft, Car, Bike, CreditCard } from 'lucide-react';
 import { ticketsAPI } from '../services/api';
 
+/**
+ * Check-out Component - Chỉ hiển thị nội dung
+ * Sidebar được quản lý bởi Layout component
+ */
 export default function CheckOut() {
   const [step, setStep] = useState(1); // 1: Input, 2: Bill
   const [query, setQuery] = useState('');

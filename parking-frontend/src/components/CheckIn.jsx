@@ -2,6 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Bike, Car, Printer, ArrowRight, QrCode, History } from 'lucide-react';
 import { ticketsAPI, zonesAPI } from '../services/api';
 
+/**
+ * Check-in Component - Chỉ hiển thị nội dung
+ * Sidebar được quản lý bởi Layout component
+ */
 export default function CheckIn() {
   const [vehicleType, setVehicleType] = useState('MOTORBIKE'); // MOTORBIKE | CAR
   const [plateNumber, setPlateNumber] = useState('');

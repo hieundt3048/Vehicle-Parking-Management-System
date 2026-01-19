@@ -2,6 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Bike, Car, Info, Filter } from 'lucide-react';
 import { zonesAPI, ticketsAPI } from '../services/api';
 
+/**
+ * Parking Map Component - Chỉ hiển thị nội dung
+ * Sidebar được quản lý bởi Layout component
+ */
 export default function ParkingMap() {
   const [zoneAData, setZoneAData] = useState([]);
   const [zoneBData, setZoneBData] = useState([]);
