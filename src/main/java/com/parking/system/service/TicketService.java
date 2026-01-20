@@ -16,6 +16,7 @@ import com.parking.system.exception.ResourceNotFoundException;
 import com.parking.system.repository.ParkingSlotRepository;
 import com.parking.system.repository.ParkingZoneRepository;
 import com.parking.system.repository.TicketRepository;
+import com.parking.system.service.factory.TicketFactory;
 
 @Service
 public class TicketService {
@@ -32,11 +33,11 @@ public class TicketService {
     @Autowired
     private FeeCalculationService feeCalculationService;
     
+    @Autowired
+    private TicketFactory ticketFactory;
+    
     /**
-     * Tạo vé xe mới (Check-in) - REWRITTEN BY SENIOR DEVELOPER
-     * 
-     * @param request Thông tin vé (biển số, loại xe, zoneId)
-     * @return Ticket đã được tạo
+     * Tạo vé xe mới
      */
     @Transactional
     public Ticket createTicket(CreateTicketRequest request) {
@@ -102,13 +103,14 @@ public class TicketService {
         // BƯỚC 5: TẠO VÉ MỚI VÀ CẬP NHẬT SLOT
         // ============================================
         
-        // Tạo vé mới
-        Ticket ticket = new Ticket();
-        ticket.setLicensePlate(request.getLicensePlate().trim().toUpperCase()); // Chuẩn hóa biển số
-        ticket.setVehicleType(request.getVehicleType());
-        ticket.setEntryTime(LocalDateTime.now());
-        ticket.setSlot(availableSlot);
-        ticket.setStatus(Ticket.Status.ACTIVE);
+        // Tạo vé mới sử dụng Factory Method Pattern
+        // Factory sẽ đảm nhiệm việc khởi tạo và chuẩn hóa dữ liệu
+        Ticket ticket = ticketFactory.createTicket(
+            request.getLicensePlate(),
+            request.getVehicleType(),
+            availableSlot,
+            LocalDateTime.now()
+        );
         
         // Cập nhật trạng thái slot NGAY LẬP TỨC (quan trọng để tránh race condition)
         availableSlot.setStatus(ParkingSlot.Status.OCCUPIED);
