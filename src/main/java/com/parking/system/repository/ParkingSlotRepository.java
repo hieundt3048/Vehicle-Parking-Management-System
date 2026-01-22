@@ -15,7 +15,16 @@ public interface ParkingSlotRepository extends JpaRepository<ParkingSlot, Long> 
     
     // Tìm slot trống đầu tiên trong zone cụ thể (quan trọng cho check-in)
     Optional<ParkingSlot> findFirstByZoneIdAndStatus(Long zoneId, ParkingSlot.Status status);
+<<<<<<< HEAD
 
     long countByStatus(ParkingSlot.Status status);
     long countByZoneIdAndStatus(Long zoneId, ParkingSlot.Status status);
+=======
+<<<<<<< HEAD
+=======
+
+    long countByStatus(ParkingSlot.Status status);
+    long countByZoneIdAndStatus(Long zoneId, ParkingSlot.Status status);
+>>>>>>> master
+>>>>>>> 8d97af04eff0ac055fbeed2838c3472f501c1be5
 }

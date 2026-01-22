@@ -1,11 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { Bike, Car, Info, Filter } from 'lucide-react';
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+import { zonesAPI } from '../services/api';
+
+=======
+>>>>>>> 8d97af04eff0ac055fbeed2838c3472f501c1be5
 import { zonesAPI, ticketsAPI } from '../services/api';
 
 /**
  * Parking Map Component - Chỉ hiển thị nội dung
  * Sidebar được quản lý bởi Layout component
  */
+<<<<<<< HEAD
+=======
+>>>>>>> master
+>>>>>>> 8d97af04eff0ac055fbeed2838c3472f501c1be5
 export default function ParkingMap() {
   const [zoneAData, setZoneAData] = useState([]);
   const [zoneBData, setZoneBData] = useState([]);
@@ -15,6 +26,13 @@ export default function ParkingMap() {
   useEffect(() => {
     const loadZones = async () => {
       try {
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+        const response = await zonesAPI.getAll();
+        const zonesData = response.data.data || response.data; // Handle ApiResponse wrapper
+=======
+>>>>>>> 8d97af04eff0ac055fbeed2838c3472f501c1be5
         const [zonesResponse, activeTicketsResponse] = await Promise.all([
           zonesAPI.getAll(),
           ticketsAPI.getActiveTickets(),
@@ -22,6 +40,10 @@ export default function ParkingMap() {
 
         const zonesData = zonesResponse.data.data || zonesResponse.data; // Handle ApiResponse wrapper
         const activeTickets = activeTicketsResponse.data.data || activeTicketsResponse.data || [];
+<<<<<<< HEAD
+=======
+>>>>>>> master
+>>>>>>> 8d97af04eff0ac055fbeed2838c3472f501c1be5
         
         // Kiểm tra zones có phải là array không
         if (!Array.isArray(zonesData)) {
@@ -29,6 +51,11 @@ export default function ParkingMap() {
           throw new Error('Invalid zones data');
         }
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> 8d97af04eff0ac055fbeed2838c3472f501c1be5
         // Map vé đang hoạt động theo slotNumber để tra biển số nhanh
         const activeBySlot = new Map();
         if (Array.isArray(activeTickets)) {
@@ -41,10 +68,51 @@ export default function ParkingMap() {
           });
         }
 
+<<<<<<< HEAD
+=======
+>>>>>>> master
+>>>>>>> 8d97af04eff0ac055fbeed2838c3472f501c1be5
         // Phân loại zones theo vehicleType
         const motorbikeZone = zonesData.find(z => z.vehicleType === 'MOTORBIKE');
         const carZone = zonesData.find(z => z.vehicleType === 'CAR');
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+        // Map slots cho Zone A (Xe máy)
+        if (motorbikeZone && motorbikeZone.slots) {
+          const mappedSlotsA = motorbikeZone.slots.map(slot => ({
+            id: slot.slotNumber,
+            status: slot.status === 'AVAILABLE' ? 'available' : 'occupied',
+            type: 'motorbike'
+          }));
+          setZoneAData(mappedSlotsA);
+        } else {
+          // Fallback: dữ liệu giả lập
+          setZoneAData(Array.from({ length: 20 }, (_, i) => ({
+            id: `A-${(i + 1).toString().padStart(2, '0')}`,
+            status: Math.random() > 0.4 ? 'available' : 'occupied',
+            type: 'motorbike'
+          })));
+        }
+
+        // Map slots cho Zone B (Ô tô)
+        if (carZone && carZone.slots) {
+          const mappedSlotsB = carZone.slots.map(slot => ({
+            id: slot.slotNumber,
+            status: slot.status === 'AVAILABLE' ? 'available' : 'occupied',
+            type: 'car'
+          }));
+          setZoneBData(mappedSlotsB);
+        } else {
+          // Fallback: dữ liệu giả lập
+          setZoneBData(Array.from({ length: 12 }, (_, i) => ({
+            id: `B-${(i + 1).toString().padStart(2, '0')}`,
+            status: Math.random() > 0.3 ? 'available' : 'occupied',
+            type: 'car'
+          })));
+=======
+>>>>>>> 8d97af04eff0ac055fbeed2838c3472f501c1be5
         // Map slots cho Zone A (Xe máy) bằng dữ liệu thật
         if (motorbikeZone && Array.isArray(motorbikeZone.slots)) {
           const mappedSlotsA = motorbikeZone.slots.map(slot => ({
@@ -71,14 +139,38 @@ export default function ParkingMap() {
         } else {
           // Không có dữ liệu slot cho khu ô tô -> để trống, không sinh dữ liệu ảo
           setZoneBData([]);
+<<<<<<< HEAD
+=======
+>>>>>>> master
+>>>>>>> 8d97af04eff0ac055fbeed2838c3472f501c1be5
         }
 
         setLoading(false);
       } catch (error) {
         console.error('Error loading zones:', error);
+<<<<<<< HEAD
         // Khi API lỗi, không sinh dữ liệu giả lập
         setZoneAData([]);
         setZoneBData([]);
+=======
+<<<<<<< HEAD
+        // Sử dụng dữ liệu giả lập khi API lỗi
+        setZoneAData(Array.from({ length: 20 }, (_, i) => ({
+          id: `A-${(i + 1).toString().padStart(2, '0')}`,
+          status: Math.random() > 0.4 ? 'available' : 'occupied',
+          type: 'motorbike'
+        })));
+        setZoneBData(Array.from({ length: 12 }, (_, i) => ({
+          id: `B-${(i + 1).toString().padStart(2, '0')}`,
+          status: Math.random() > 0.3 ? 'available' : 'occupied',
+          type: 'car'
+        })));
+=======
+        // Khi API lỗi, không sinh dữ liệu giả lập
+        setZoneAData([]);
+        setZoneBData([]);
+>>>>>>> master
+>>>>>>> 8d97af04eff0ac055fbeed2838c3472f501c1be5
         setLoading(false);
       }
     };
@@ -118,11 +210,23 @@ export default function ParkingMap() {
             <>
               {isCar ? <Car size={40} className="text-red-500 mb-1" /> : <Bike size={32} className="text-red-500 mb-1" />}
               <span className="text-xs font-semibold text-red-600">Đã có xe</span>
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+              <span className="text-[10px] text-red-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                BKS: 29A-123.45
+              </span>
+=======
+>>>>>>> 8d97af04eff0ac055fbeed2838c3472f501c1be5
               {data.plate && (
                 <span className="text-[10px] text-red-400 opacity-0 group-hover:opacity-100 transition-opacity mt-0.5">
                   BKS: {data.plate}
                 </span>
               )}
+<<<<<<< HEAD
+=======
+>>>>>>> master
+>>>>>>> 8d97af04eff0ac055fbeed2838c3472f501c1be5
             </>
           ) : (
             <>

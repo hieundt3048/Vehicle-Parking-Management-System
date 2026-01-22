@@ -2,6 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { Bike, Car, Printer, ArrowRight, QrCode, History } from 'lucide-react';
 import { ticketsAPI, zonesAPI } from '../services/api';
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+export default function CheckIn() {
+  const [vehicleType, setVehicleType] = useState('MOTORBIKE'); // MOTORBIKE | CAR
+  const [plateNumber, setPlateNumber] = useState('');
+  const [suggestedSlot, setSuggestedSlot] = useState('A-05');
+=======
+>>>>>>> 8d97af04eff0ac055fbeed2838c3472f501c1be5
 /**
  * Check-in Component - Chỉ hiển thị nội dung
  * Sidebar được quản lý bởi Layout component
@@ -11,6 +20,10 @@ export default function CheckIn() {
   const [plateNumber, setPlateNumber] = useState('');
   const [suggestedSlot, setSuggestedSlot] = useState('--');
   const [zonesByType, setZonesByType] = useState({});
+<<<<<<< HEAD
+=======
+>>>>>>> master
+>>>>>>> 8d97af04eff0ac055fbeed2838c3472f501c1be5
   const [isProcessing, setIsProcessing] = useState(false);
   const [lastCheckIn, setLastCheckIn] = useState(null);
   const [stats, setStats] = useState({
@@ -20,6 +33,44 @@ export default function CheckIn() {
 
   // Lấy vị trí gợi ý khi đổi loại xe
   useEffect(() => {
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+    const fetchAvailableSlot = async () => {
+      try {
+        const response = await zonesAPI.getAvailableSlots();
+        const data = response.data.data; // API trả về { success, message, data }
+        const availableSlots = data.slots || [];
+        
+        // Lọc slots theo loại xe
+        const filteredSlots = availableSlots.filter(slot => {
+          if (vehicleType === 'MOTORBIKE') {
+            return slot.slotNumber.startsWith('A-');
+          } else {
+            return slot.slotNumber.startsWith('B-');
+          }
+        });
+
+        if (filteredSlots.length > 0) {
+          setSuggestedSlot(filteredSlots[0].slotNumber);
+        } else {
+          setSuggestedSlot(vehicleType === 'MOTORBIKE' ? 'A-00' : 'B-00');
+        }
+      } catch (error) {
+        console.error('Error fetching available slots:', error);
+        // Fallback: random slot
+        if (vehicleType === 'MOTORBIKE') {
+          setSuggestedSlot(`A-${(Math.floor(Math.random() * 20) + 1).toString().padStart(2, '0')}`);
+        } else {
+          setSuggestedSlot(`B-${(Math.floor(Math.random() * 10) + 1).toString().padStart(2, '0')}`);
+        }
+      }
+    };
+
+    fetchAvailableSlot();
+  }, [vehicleType]);
+=======
+>>>>>>> 8d97af04eff0ac055fbeed2838c3472f501c1be5
     const loadZones = async () => {
       try {
         const response = await zonesAPI.getAll();
@@ -67,6 +118,10 @@ export default function CheckIn() {
       fetchAvailableSlot();
     }
   }, [vehicleType, zonesByType]);
+<<<<<<< HEAD
+=======
+>>>>>>> master
+>>>>>>> 8d97af04eff0ac055fbeed2838c3472f501c1be5
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -76,6 +131,15 @@ export default function CheckIn() {
 
     try {
       // Gọi API tạo ticket với đúng tên field theo backend
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+      const ticketData = {
+        licensePlate: plateNumber,
+        vehicleType: vehicleType,
+        zoneId: vehicleType === 'MOTORBIKE' ? 1 : 2  // Giả sử zone 1 là xe máy, zone 2 là ô tô
+=======
+>>>>>>> 8d97af04eff0ac055fbeed2838c3472f501c1be5
       const selectedZone = zonesByType[vehicleType];
       if (!selectedZone) {
         alert('Chưa có khu vực cho loại xe này. Vui lòng cấu hình trước.');
@@ -87,6 +151,10 @@ export default function CheckIn() {
         licensePlate: plateNumber,
         vehicleType: vehicleType,
         zoneId: selectedZone.id
+<<<<<<< HEAD
+=======
+>>>>>>> master
+>>>>>>> 8d97af04eff0ac055fbeed2838c3472f501c1be5
       };
 
       const response = await ticketsAPI.create(ticketData);

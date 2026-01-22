@@ -6,9 +6,18 @@ import Dashboard from './components/Dashboard';
 import ParkingMap from './components/ParkingMap';
 import CheckIn from './components/CheckIn';
 import CheckOut from './components/CheckOut';
+<<<<<<< HEAD
 import Reports from './components/Reports';
 import Employees from './components/Employees';
 import Layout from './components/Layout';
+=======
+<<<<<<< HEAD
+=======
+import Reports from './components/Reports';
+import Employees from './components/Employees';
+import Layout from './components/Layout';
+>>>>>>> master
+>>>>>>> 8d97af04eff0ac055fbeed2838c3472f501c1be5
 
 // Component để bảo vệ các route yêu cầu xác thực
 const ProtectedRoute = ({ children }) => {
@@ -22,6 +31,11 @@ const ProtectedRoute = ({ children }) => {
   return children;
 };
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> 8d97af04eff0ac055fbeed2838c3472f501c1be5
 // Component để bảo vệ route chỉ dành cho ADMIN
 const AdminRoute = ({ children }) => {
   const token = localStorage.getItem('authToken');
@@ -41,6 +55,10 @@ const AdminRoute = ({ children }) => {
   return children;
 };
 
+<<<<<<< HEAD
+=======
+>>>>>>> master
+>>>>>>> 8d97af04eff0ac055fbeed2838c3472f501c1be5
 // Component để redirect user đã đăng nhập khỏi trang login
 const PublicRoute = ({ children }) => {
   const token = localStorage.getItem('authToken');
@@ -80,14 +98,32 @@ function App() {
           } 
         />
         
+<<<<<<< HEAD
         {/* Các route yêu cầu xác thực - Wrapped trong Layout */}
+=======
+<<<<<<< HEAD
+        {/* Các route yêu cầu xác thực */}
+=======
+        {/* Các route yêu cầu xác thực - Wrapped trong Layout */}
+>>>>>>> master
+>>>>>>> 8d97af04eff0ac055fbeed2838c3472f501c1be5
         <Route 
           path="/dashboard" 
           element={
             <ProtectedRoute>
+<<<<<<< HEAD
               <Layout>
                 <Dashboard />
               </Layout>
+=======
+<<<<<<< HEAD
+              <Dashboard />
+=======
+              <Layout>
+                <Dashboard />
+              </Layout>
+>>>>>>> master
+>>>>>>> 8d97af04eff0ac055fbeed2838c3472f501c1be5
             </ProtectedRoute>
           } 
         />
@@ -96,9 +132,19 @@ function App() {
           path="/parking-map" 
           element={
             <ProtectedRoute>
+<<<<<<< HEAD
               <Layout>
                 <ParkingMap />
               </Layout>
+=======
+<<<<<<< HEAD
+              <ParkingMap />
+=======
+              <Layout>
+                <ParkingMap />
+              </Layout>
+>>>>>>> master
+>>>>>>> 8d97af04eff0ac055fbeed2838c3472f501c1be5
             </ProtectedRoute>
           } 
         />
@@ -107,9 +153,19 @@ function App() {
           path="/check-in" 
           element={
             <ProtectedRoute>
+<<<<<<< HEAD
               <Layout>
                 <CheckIn />
               </Layout>
+=======
+<<<<<<< HEAD
+              <CheckIn />
+=======
+              <Layout>
+                <CheckIn />
+              </Layout>
+>>>>>>> master
+>>>>>>> 8d97af04eff0ac055fbeed2838c3472f501c1be5
             </ProtectedRoute>
           } 
         />
@@ -118,13 +174,28 @@ function App() {
           path="/check-out" 
           element={
             <ProtectedRoute>
+<<<<<<< HEAD
               <Layout>
                 <CheckOut />
               </Layout>
+=======
+<<<<<<< HEAD
+              <CheckOut />
+=======
+              <Layout>
+                <CheckOut />
+              </Layout>
+>>>>>>> master
+>>>>>>> 8d97af04eff0ac055fbeed2838c3472f501c1be5
             </ProtectedRoute>
           } 
         />
         
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> 8d97af04eff0ac055fbeed2838c3472f501c1be5
         {/* Route chỉ dành cho ADMIN - Báo cáo doanh thu */}
         <Route 
           path="/reports" 
@@ -149,6 +220,10 @@ function App() {
           } 
         />
         
+<<<<<<< HEAD
+=======
+>>>>>>> master
+>>>>>>> 8d97af04eff0ac055fbeed2838c3472f501c1be5
         {/* Route không tìm thấy - 404 */}
         <Route 
           path="*" 

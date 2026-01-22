@@ -83,10 +83,21 @@ export const zonesAPI = {
   delete: (id) => 
     api.delete(`/zones/${id}`),
   
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+  getAvailableSlots: () => 
+    api.get('/zones/available-slots'),
+=======
+>>>>>>> 8d97af04eff0ac055fbeed2838c3472f501c1be5
   getAvailableSlots: (zoneId) => 
     api.get('/zones/available-slots', {
       params: zoneId ? { zoneId } : undefined,
     }),
+<<<<<<< HEAD
+=======
+>>>>>>> master
+>>>>>>> 8d97af04eff0ac055fbeed2838c3472f501c1be5
 };
 
 // ========================
@@ -122,12 +133,47 @@ export const reportsAPI = {
   getMonthlyRevenue: (month, year) => 
     api.get('/reports/revenue/monthly', { params: { month, year } }),
   
+<<<<<<< HEAD
   getShiftRevenue: (date) =>
     api.get('/reports/revenue/shifts', { params: { date } }),
   
+=======
+<<<<<<< HEAD
+=======
+  getShiftRevenue: (date) =>
+    api.get('/reports/revenue/shifts', { params: { date } }),
+  
+>>>>>>> master
+>>>>>>> 8d97af04eff0ac055fbeed2838c3472f501c1be5
   getOccupancyStats: () => 
     api.get('/reports/occupancy'),
 };
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+// ========================
+// Monthly Tickets API (Vé tháng)
+// ========================
+export const monthlyTicketsAPI = {
+  getAll: () => 
+    api.get('/monthly-tickets'),
+  
+  getById: (id) => 
+    api.get(`/monthly-tickets/${id}`),
+  
+  create: (ticketData) => 
+    api.post('/monthly-tickets', ticketData),
+  
+  renew: (id) => 
+    api.post(`/monthly-tickets/${id}/renew`),
+  
+  cancel: (id) => 
+    api.delete(`/monthly-tickets/${id}`),
+};
+
+=======
+>>>>>>> master
+>>>>>>> 8d97af04eff0ac055fbeed2838c3472f501c1be5
 export default api;
 

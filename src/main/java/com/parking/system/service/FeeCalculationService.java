@@ -72,4 +72,21 @@ public class FeeCalculationService {
         // Nếu gửi chưa đến 1 phút cũng tính tối thiểu là 1 giờ
         return hours == 0 ? 1 : hours;
     }
+<<<<<<< HEAD
+=======
+
+    /**
+     * Công thức tính phí chung
+     * Block đầu tiên: firstBlockPrice (mặc định 2 giờ)
+     * Các giờ tiếp theo: nextHourPrice per giờ
+     */
+    private Double calculate(long totalHours, double firstBlockPrice, double nextHourPrice) {
+        if (totalHours <= feeConfig.getFirstBlockHours()) {
+            return firstBlockPrice;
+        } else {
+            long extraHours = totalHours - feeConfig.getFirstBlockHours();
+            return firstBlockPrice + (extraHours * nextHourPrice);
+        }
+    }
+>>>>>>> 8d97af04eff0ac055fbeed2838c3472f501c1be5
 }
