@@ -15,11 +15,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-<<<<<<< HEAD
-
-import java.util.Arrays;
-=======
->>>>>>> master
 
 /**
  * Security Configuration
@@ -38,21 +33,12 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-<<<<<<< HEAD
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173", "http://localhost:5174", "http://localhost:3000"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        configuration.setAllowedHeaders(Arrays.asList("*"));
-        configuration.setAllowCredentials(true);
-        configuration.setExposedHeaders(Arrays.asList("Authorization", "Content-Type"));
-        configuration.setMaxAge(3600L);
-=======
         configuration.setAllowedOrigins(Arrays.asList(CorsConfigConstants.ALLOWED_ORIGINS));
         configuration.setAllowedMethods(Arrays.asList(CorsConfigConstants.ALLOWED_METHODS));
         configuration.setAllowedHeaders(Arrays.asList(CorsConfigConstants.ALLOWED_HEADERS));
         configuration.setAllowCredentials(CorsConfigConstants.ALLOW_CREDENTIALS);
         configuration.setExposedHeaders(Arrays.asList(CorsConfigConstants.EXPOSED_HEADERS));
         configuration.setMaxAge(CorsConfigConstants.MAX_AGE);
->>>>>>> master
         
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
