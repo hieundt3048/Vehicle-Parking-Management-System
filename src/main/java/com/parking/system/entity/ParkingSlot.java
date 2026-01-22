@@ -1,5 +1,7 @@
 package com.parking.system.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -24,6 +26,7 @@ public class ParkingSlot {
     
     @ManyToOne
     @JoinColumn(name = "zone_id", nullable = false)
+    @JsonBackReference
     private ParkingZone zone;
     
     @Enumerated(EnumType.STRING)

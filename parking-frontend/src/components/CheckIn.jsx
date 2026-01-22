@@ -2,10 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { Bike, Car, Printer, ArrowRight, QrCode, History } from 'lucide-react';
 import { ticketsAPI, zonesAPI } from '../services/api';
 
+/**
+ * Check-in Component - Chỉ hiển thị nội dung
+ * Sidebar được quản lý bởi Layout component
+ */
 export default function CheckIn() {
   const [vehicleType, setVehicleType] = useState('MOTORBIKE'); // MOTORBIKE | CAR
   const [plateNumber, setPlateNumber] = useState('');
-  const [suggestedSlot, setSuggestedSlot] = useState('A-05');
+  const [suggestedSlot, setSuggestedSlot] = useState('--');
+  const [zonesByType, setZonesByType] = useState({});
   const [isProcessing, setIsProcessing] = useState(false);
   const [lastCheckIn, setLastCheckIn] = useState(null);
   const [stats, setStats] = useState({
@@ -15,39 +20,53 @@ export default function CheckIn() {
 
   // Lấy vị trí gợi ý khi đổi loại xe
   useEffect(() => {
-    const fetchAvailableSlot = async () => {
+    const loadZones = async () => {
       try {
-        const response = await zonesAPI.getAvailableSlots();
-        const data = response.data.data; // API trả về { success, message, data }
-        const availableSlots = data.slots || [];
-        
-        // Lọc slots theo loại xe
-        const filteredSlots = availableSlots.filter(slot => {
-          if (vehicleType === 'MOTORBIKE') {
-            return slot.slotNumber.startsWith('A-');
-          } else {
-            return slot.slotNumber.startsWith('B-');
-          }
-        });
-
-        if (filteredSlots.length > 0) {
-          setSuggestedSlot(filteredSlots[0].slotNumber);
-        } else {
-          setSuggestedSlot(vehicleType === 'MOTORBIKE' ? 'A-00' : 'B-00');
-        }
+        const response = await zonesAPI.getAll();
+        const zones = Array.isArray(response.data.data) ? response.data.data : response.data;
+        const grouped = zones.reduce((acc, zone) => {
+          acc[zone.vehicleType] = zone;
+          return acc;
+        }, {});
+        setZonesByType(grouped);
       } catch (error) {
-        console.error('Error fetching available slots:', error);
-        // Fallback: random slot
-        if (vehicleType === 'MOTORBIKE') {
-          setSuggestedSlot(`A-${(Math.floor(Math.random() * 20) + 1).toString().padStart(2, '0')}`);
-        } else {
-          setSuggestedSlot(`B-${(Math.floor(Math.random() * 10) + 1).toString().padStart(2, '0')}`);
-        }
+        console.error('Không thể tải thông tin khu vực:', error);
       }
     };
 
-    fetchAvailableSlot();
-  }, [vehicleType]);
+    loadZones();
+  }, []);
+
+  useEffect(() => {
+    const fetchAvailableSlot = async () => {
+      const selectedZone = zonesByType[vehicleType];
+      if (!selectedZone) {
+        // Không có khu vực phù hợp -> không đề xuất slot ảo
+        setSuggestedSlot('--');
+        return;
+      }
+
+      try {
+        const response = await zonesAPI.getAvailableSlots(selectedZone.id);
+        const data = response.data.data;
+        const availableSlots = data.slots || [];
+
+        if (availableSlots.length > 0) {
+          setSuggestedSlot(availableSlots[0].slotNumber);
+          return;
+        }
+      } catch (error) {
+        console.error('Error fetching available slots:', error);
+      }
+
+      // Không tìm được slot trống hoặc lỗi API -> không hiển thị slot ảo
+      setSuggestedSlot('--');
+    };
+
+    if (zonesByType[vehicleType]) {
+      fetchAvailableSlot();
+    }
+  }, [vehicleType, zonesByType]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -57,10 +76,17 @@ export default function CheckIn() {
 
     try {
       // Gọi API tạo ticket với đúng tên field theo backend
+      const selectedZone = zonesByType[vehicleType];
+      if (!selectedZone) {
+        alert('Chưa có khu vực cho loại xe này. Vui lòng cấu hình trước.');
+        setIsProcessing(false);
+        return;
+      }
+
       const ticketData = {
         licensePlate: plateNumber,
         vehicleType: vehicleType,
-        zoneId: vehicleType === 'MOTORBIKE' ? 1 : 2  // Giả sử zone 1 là xe máy, zone 2 là ô tô
+        zoneId: selectedZone.id
       };
 
       const response = await ticketsAPI.create(ticketData);

@@ -6,6 +6,9 @@ import Dashboard from './components/Dashboard';
 import ParkingMap from './components/ParkingMap';
 import CheckIn from './components/CheckIn';
 import CheckOut from './components/CheckOut';
+import Reports from './components/Reports';
+import Employees from './components/Employees';
+import Layout from './components/Layout';
 
 // Component để bảo vệ các route yêu cầu xác thực
 const ProtectedRoute = ({ children }) => {
@@ -14,6 +17,25 @@ const ProtectedRoute = ({ children }) => {
   if (!token) {
     // Chưa đăng nhập -> chuyển về trang login
     return <Navigate to="/login" replace />;
+  }
+  
+  return children;
+};
+
+// Component để bảo vệ route chỉ dành cho ADMIN
+const AdminRoute = ({ children }) => {
+  const token = localStorage.getItem('authToken');
+  const userData = localStorage.getItem('user');
+  
+  if (!token) {
+    // Chưa đăng nhập -> chuyển về trang login
+    return <Navigate to="/login" replace />;
+  }
+  
+  const user = userData ? JSON.parse(userData) : null;
+  if (user?.role !== 'ADMIN') {
+    // Không phải ADMIN -> chuyển về dashboard
+    return <Navigate to="/dashboard" replace />;
   }
   
   return children;
@@ -58,12 +80,14 @@ function App() {
           } 
         />
         
-        {/* Các route yêu cầu xác thực */}
+        {/* Các route yêu cầu xác thực - Wrapped trong Layout */}
         <Route 
           path="/dashboard" 
           element={
             <ProtectedRoute>
-              <Dashboard />
+              <Layout>
+                <Dashboard />
+              </Layout>
             </ProtectedRoute>
           } 
         />
@@ -72,7 +96,9 @@ function App() {
           path="/parking-map" 
           element={
             <ProtectedRoute>
-              <ParkingMap />
+              <Layout>
+                <ParkingMap />
+              </Layout>
             </ProtectedRoute>
           } 
         />
@@ -81,7 +107,9 @@ function App() {
           path="/check-in" 
           element={
             <ProtectedRoute>
-              <CheckIn />
+              <Layout>
+                <CheckIn />
+              </Layout>
             </ProtectedRoute>
           } 
         />
@@ -90,8 +118,34 @@ function App() {
           path="/check-out" 
           element={
             <ProtectedRoute>
-              <CheckOut />
+              <Layout>
+                <CheckOut />
+              </Layout>
             </ProtectedRoute>
+          } 
+        />
+        
+        {/* Route chỉ dành cho ADMIN - Báo cáo doanh thu */}
+        <Route 
+          path="/reports" 
+          element={
+            <AdminRoute>
+              <Layout>
+                <Reports />
+              </Layout>
+            </AdminRoute>
+          } 
+        />
+        
+        {/* Route chỉ dành cho ADMIN - Quản lý nhân viên */}
+        <Route 
+          path="/employees" 
+          element={
+            <AdminRoute>
+              <Layout>
+                <Employees />
+              </Layout>
+            </AdminRoute>
           } 
         />
         

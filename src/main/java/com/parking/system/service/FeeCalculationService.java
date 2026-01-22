@@ -5,53 +5,71 @@ import java.time.LocalDateTime;
 
 import org.springframework.stereotype.Service;
 
+import com.parking.system.config.FeeConfiguration;
 import com.parking.system.entity.ParkingZone;
+import com.parking.system.service.strategy.FeeStrategy;
+import com.parking.system.service.strategy.FeeStrategyFactory;
 
+/**
+ * Service tính toán phí gửi xe
+ * Tuân thủ Single Responsibility: chỉ làm một việc là tính phí
+ * Tuân thủ Open/Closed: dễ dàng mở rộng bằng cách thêm Strategy mới
+ * Sử dụng Strategy Pattern để tính phí linh hoạt theo loại xe
+ */
 @Service
 public class FeeCalculationService {
-
-    // Cấu hình giá tiền 
-    private static final double MOTO_BLOCK_1 = 5000.0;  // Xe máy: 2h đầu
-    private static final double MOTO_NEXT    = 2000.0;  // Xe máy: các giờ sau
     
-    private static final double CAR_BLOCK_1  = 10000.0; // Ô tô: 2h đầu
-    private static final double CAR_NEXT     = 5000.0;  // Ô tô: các giờ sau
+    private final FeeConfiguration feeConfig;
+    private final FeeStrategyFactory strategyFactory;
+    
+    // Constructor injection để inject configuration và strategy factory
+    public FeeCalculationService(FeeConfiguration feeConfig, FeeStrategyFactory strategyFactory) {
+        this.feeConfig = feeConfig;
+        this.strategyFactory = strategyFactory;
+    }
 
-    // Block đầu tiên tính là 2 giờ
-    private static final long FIRST_BLOCK_HOURS = 2;
-
+    /**
+     * Tính phí gửi xe dựa trên thời gian và loại xe
+     * Sử dụng Strategy Pattern để chọn chiến lược tính phí phù hợp
+     * 
+     * @param entryTime Thời gian vào
+     * @param exitTime Thời gian ra
+     * @param vehicleType Loại xe (MOTORBIKE/CAR)
+     * @return Số tiền phải trả
+     */
     public Double calculateFee(LocalDateTime entryTime, LocalDateTime exitTime, ParkingZone.VehicleType vehicleType) {
         // Validate dữ liệu đầu vào
+        validateInput(entryTime, exitTime, vehicleType);
+
+        // Tính thời gian gửi 
+        long totalHours = calculateParkingHours(entryTime, exitTime);
+        
+        // Lấy strategy phù hợp với loại xe và tính phí
+        FeeStrategy strategy = strategyFactory.getStrategy(vehicleType);
+        return strategy.calculateFee(totalHours, feeConfig);
+    }
+    
+    /**
+     * Validate input parameters
+     */
+    private void validateInput(LocalDateTime entryTime, LocalDateTime exitTime, ParkingZone.VehicleType vehicleType) {
         if (entryTime == null || exitTime == null || vehicleType == null) {
-            return 0.0;
+            throw new IllegalArgumentException("Thời gian vào, thời gian ra và loại xe không được null");
         }
 
         if (exitTime.isBefore(entryTime)) {
             throw new IllegalArgumentException("Giờ ra không thể trước giờ vào");
         }
-
-        // Tính thời gian gửi 
+    }
+    
+    /**
+     * Tính số giờ gửi xe (làm tròn lên)
+     */
+    private long calculateParkingHours(LocalDateTime entryTime, LocalDateTime exitTime) {
         long minutes = Duration.between(entryTime, exitTime).toMinutes();
         long hours = (long) Math.ceil(minutes / 60.0);
         
-        // Nếu gửi chưa đến 1 phút cũng tính tối thiểu là block đầu
-        if (hours == 0) hours = 1; 
-
-        // Chọn công thức theo loại xe
-        if (vehicleType == ParkingZone.VehicleType.MOTORBIKE) {
-            return calculate(hours, MOTO_BLOCK_1, MOTO_NEXT);
-        } else {
-            return calculate(hours, CAR_BLOCK_1, CAR_NEXT);
-        }
-    }
-
-    // Công thức tính toán chung
-    private Double calculate(long totalHours, double firstBlockPrice, double nextHourPrice) {
-        if (totalHours <= FIRST_BLOCK_HOURS) {
-            return firstBlockPrice;
-        } else {
-            long extraHours = totalHours - FIRST_BLOCK_HOURS;
-            return firstBlockPrice + (extraHours * nextHourPrice);
-        }
+        // Nếu gửi chưa đến 1 phút cũng tính tối thiểu là 1 giờ
+        return hours == 0 ? 1 : hours;
     }
 }

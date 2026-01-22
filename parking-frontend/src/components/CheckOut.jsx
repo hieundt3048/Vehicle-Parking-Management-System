@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import { Search, Receipt, Clock, Calendar, CheckCircle, ArrowLeft, Car, Bike, CreditCard } from 'lucide-react';
 import { ticketsAPI } from '../services/api';
 
+/**
+ * Check-out Component - Chỉ hiển thị nội dung
+ * Sidebar được quản lý bởi Layout component
+ */
 export default function CheckOut() {
   const [step, setStep] = useState(1); // 1: Input, 2: Bill
   const [query, setQuery] = useState('');
@@ -15,32 +19,33 @@ export default function CheckOut() {
     setIsLoading(true);
     
     try {
-      // Tìm vé theo biển số hoặc mã vé
-      const response = await ticketsAPI.getByPlateNumber(query);
-      
-      if (response.data && response.data.length > 0) {
-        const ticket = response.data[0];
-        
-        // Map dữ liệu từ API sang billData
-        const checkInTime = new Date(ticket.checkInTime);
-        const checkOutTime = new Date();
-        const duration = calculateDuration(checkInTime, checkOutTime);
-        
-        setBillData({
-          plateNumber: ticket.plateNumber,
-          vehicleType: ticket.vehicleType.toLowerCase(), // MOTORBIKE -> motorbike
-          ticketCode: ticket.ticketCode,
-          checkInTime: checkInTime,
-          checkOutTime: checkOutTime,
-          duration: duration,
-          amount: ticket.fee || 0,
-          ticketId: ticket.id
-        });
-        
-        setStep(2);
-      } else {
-        alert('Không tìm thấy vé xe với thông tin này.');
+      const trimmed = query.trim();
+      const isIdLookup = /^\d+$/.test(trimmed);
+      const response = isIdLookup
+        ? await ticketsAPI.getById(trimmed)
+        : await ticketsAPI.getByPlateNumber(trimmed);
+      const ticket = response.data?.data;
+
+      if (!ticket || ticket.status !== 'ACTIVE') {
+        alert('Không tìm thấy vé đang hoạt động cho thông tin này.');
+        return;
       }
+
+      const checkInTime = new Date(ticket.entryTime);
+      const checkOutTime = new Date();
+      const duration = calculateDuration(checkInTime, checkOutTime);
+
+      setBillData({
+        plateNumber: ticket.licensePlate,
+        vehicleType: (ticket.vehicleType || 'MOTORBIKE').toLowerCase(),
+        ticketCode: `T-${ticket.id.toString().padStart(6, '0')}`,
+        checkInTime,
+        checkOutTime,
+        duration,
+        amount: estimateAmount(checkInTime, checkOutTime, ticket.vehicleType),
+        ticketId: ticket.id
+      });
+      setStep(2);
     } catch (error) {
       console.error('Search ticket error:', error);
       alert(error.response?.data?.message || 'Không tìm thấy vé xe. Vui lòng kiểm tra lại.');
@@ -60,10 +65,9 @@ export default function CheckOut() {
     if (!billData) return;
 
     try {
-      // Gọi API checkout
       const response = await ticketsAPI.checkOut(billData.ticketId);
-      
-      alert(`Thanh toán thành công!\nSố tiền: ${billData.amount.toLocaleString('vi-VN')} VNĐ\nCổng đang mở...`);
+      const paidAmount = response.data?.data?.totalAmount ?? billData.amount;
+      alert(`Thanh toán thành công!\nSố tiền: ${paidAmount.toLocaleString('vi-VN')} VNĐ\nCổng đang mở...`);
       resetProcess();
     } catch (error) {
       console.error('Checkout error:', error);
@@ -80,6 +84,18 @@ export default function CheckOut() {
   // Format tiền tệ
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+  };
+
+  const estimateAmount = (entry, exit, vehicleType) => {
+    const diffHours = Math.max(1, Math.ceil((exit - entry) / (1000 * 60 * 60)));
+    const type = vehicleType?.toUpperCase() === 'CAR' ? 'CAR' : 'MOTORBIKE';
+    const firstBlock = 2;
+    const firstPrice = type === 'MOTORBIKE' ? 5000 : 10000;
+    const extraPrice = type === 'MOTORBIKE' ? 2000 : 5000;
+    if (diffHours <= firstBlock) {
+      return firstPrice;
+    }
+    return firstPrice + (diffHours - firstBlock) * extraPrice;
   };
 
   // Format ngày giờ
