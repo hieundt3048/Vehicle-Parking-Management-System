@@ -1,5 +1,7 @@
 package com.parking.system.config;
 
+import java.util.Arrays;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -13,9 +15,17 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+<<<<<<< HEAD
 
 import java.util.Arrays;
+=======
+>>>>>>> master
 
+/**
+ * Security Configuration
+ * Tuân thủ Single Responsibility: chỉ cấu hình security
+ * Sử dụng CorsConfigConstants để tránh hardcode
+ */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -28,12 +38,21 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
+<<<<<<< HEAD
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173", "http://localhost:5174", "http://localhost:3000"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
         configuration.setExposedHeaders(Arrays.asList("Authorization", "Content-Type"));
         configuration.setMaxAge(3600L);
+=======
+        configuration.setAllowedOrigins(Arrays.asList(CorsConfigConstants.ALLOWED_ORIGINS));
+        configuration.setAllowedMethods(Arrays.asList(CorsConfigConstants.ALLOWED_METHODS));
+        configuration.setAllowedHeaders(Arrays.asList(CorsConfigConstants.ALLOWED_HEADERS));
+        configuration.setAllowCredentials(CorsConfigConstants.ALLOW_CREDENTIALS);
+        configuration.setExposedHeaders(Arrays.asList(CorsConfigConstants.EXPOSED_HEADERS));
+        configuration.setMaxAge(CorsConfigConstants.MAX_AGE);
+>>>>>>> master
         
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
@@ -57,7 +76,8 @@ public class SecurityConfig {
             auth.requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll();
             // Các quy tắc bảo mật
             auth.requestMatchers("/api/auth/**").permitAll();
-            auth.requestMatchers("/api/reports/**").hasRole("ADMIN");
+            // Cho phép cả ADMIN và EMPLOYEE xem các báo cáo (bao gồm doanh thu)
+            auth.requestMatchers("/api/reports/**").hasAnyRole("ADMIN", "EMPLOYEE");
             auth.requestMatchers("/api/**").hasAnyRole("ADMIN", "EMPLOYEE");
             auth.requestMatchers("/**").permitAll(); // Cho phép tất cả để frontend có thể truy cập
         });

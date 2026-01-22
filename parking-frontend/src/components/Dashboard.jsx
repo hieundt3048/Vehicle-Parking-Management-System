@@ -1,29 +1,43 @@
 import React, { useState, useEffect } from 'react';
 import { 
   LayoutDashboard, 
+<<<<<<< HEAD
   Map, 
   LogIn, 
   LogOut, 
   Users, 
   LogOut as SignOutIcon, 
   Menu, 
+=======
+>>>>>>> master
   Car, 
   CreditCard,
   AlertCircle,
   ParkingSquare
 } from 'lucide-react';
+<<<<<<< HEAD
 import { useNavigate } from 'react-router-dom';
 import { authAPI, zonesAPI, reportsAPI } from '../services/api';
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+=======
+import { reportsAPI, zonesAPI } from '../services/api';
+
+/**
+ * Dashboard Component - Chỉ hiển thị nội dung
+ * Sidebar được quản lý bởi Layout component
+ */
+export default function Dashboard() {
+>>>>>>> master
   const [stats, setStats] = useState({
     totalSlots: 0,
     occupiedSlots: 0,
     availableSlots: 0,
     dailyRevenue: '0đ'
   });
+<<<<<<< HEAD
   const [user, setUser] = useState(null);
 
   // Load thông tin user từ localStorage
@@ -33,11 +47,24 @@ export default function Dashboard() {
       setUser(JSON.parse(userData));
     }
   }, []);
+=======
+  const [lastUpdated, setLastUpdated] = useState(null);
+
+  // Hàm tiện ích: lấy ngày theo múi giờ local dạng yyyy-MM-dd
+  const getTodayLocalDateString = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+>>>>>>> master
 
   // Load thống kê từ API
   useEffect(() => {
     const loadStats = async () => {
       try {
+<<<<<<< HEAD
         // Lấy thông tin vị trí trống
         const slotsResponse = await zonesAPI.getAvailableSlots();
         const slotsData = slotsResponse.data.data || slotsResponse.data;
@@ -72,6 +99,56 @@ export default function Dashboard() {
           totalSlots: 200,
           occupiedSlots: 145,
           availableSlots: 55,
+=======
+        const today = getTodayLocalDateString();
+
+        // Gọi song song nhưng xử lý lỗi từng API để tránh "đổ vỡ dây chuyền"
+        const [zonesResult, revenueResult] = await Promise.allSettled([
+          zonesAPI.getAll(),
+          reportsAPI.getDailyRevenue(today)
+        ]);
+
+        // Xử lý dữ liệu khu vực & slot
+        let zonesData = [];
+        if (zonesResult.status === 'fulfilled') {
+          const rawZones = zonesResult.value.data.data || zonesResult.value.data;
+          if (Array.isArray(rawZones)) {
+            zonesData = rawZones;
+          } else {
+            console.error('Zones data is not an array:', rawZones);
+          }
+        } else {
+          console.error('Error loading zones:', zonesResult.reason);
+        }
+
+        const allSlots = zonesData.flatMap(zone => Array.isArray(zone.slots) ? zone.slots : []);
+        const totalSlots = allSlots.length;
+        const occupiedSlots = allSlots.filter(s => s.status === 'OCCUPIED').length;
+        const availableSlots = allSlots.filter(s => s.status === 'AVAILABLE').length;
+
+        // Xử lý dữ liệu doanh thu (có thể lỗi nhưng không chặn hiển thị slot)
+        let revenueValue = 0;
+        if (revenueResult.status === 'fulfilled') {
+          const revenueData = revenueResult.value.data.data || revenueResult.value.data;
+          revenueValue = revenueData.revenue || 0;
+        } else {
+          console.error('Error loading daily revenue:', revenueResult.reason);
+        }
+
+        setStats({
+          totalSlots,
+          occupiedSlots,
+          availableSlots,
+          dailyRevenue: `${revenueValue.toLocaleString('vi-VN')}đ`
+        });
+        setLastUpdated(new Date());
+      } catch (error) {
+        console.error('Error loading stats:', error);
+        setStats({
+          totalSlots: 0,
+          occupiedSlots: 0,
+          availableSlots: 0,
+>>>>>>> master
           dailyRevenue: '0đ'
         });
       }
@@ -83,6 +160,7 @@ export default function Dashboard() {
     return () => clearInterval(interval);
   }, []);
 
+<<<<<<< HEAD
   // Danh sách menu
   const menuItems = [
     { name: 'Tổng quan', icon: <LayoutDashboard size={20} />, path: '/dashboard', active: true },
@@ -103,6 +181,8 @@ export default function Dashboard() {
     }
   };
 
+=======
+>>>>>>> master
   // Dữ liệu thống kê hiển thị
   const statsDisplay = [
     { 
@@ -140,6 +220,7 @@ export default function Dashboard() {
   ];
 
   return (
+<<<<<<< HEAD
     <div className="min-h-screen bg-slate-50 flex font-sans">
       
       {/* Sidebar */}
@@ -272,6 +353,45 @@ export default function Dashboard() {
           to { opacity: 1; }
         }
       `}</style>
+=======
+    <div className="p-6">
+      {/* Header */}
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-slate-800">Tổng quan hệ thống</h1>
+        <p className="text-sm text-slate-500 mt-1">
+          {lastUpdated
+            ? `Cập nhật lần cuối: ${lastUpdated.toLocaleTimeString('vi-VN')}`
+            : 'Đang tải dữ liệu thống kê...'}
+        </p>
+      </div>
+
+      {/* Stats Cards Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {statsDisplay.map((stat, index) => (
+          <div 
+            key={index} 
+            className="bg-white rounded-xl shadow-sm border border-slate-100 p-6 flex items-start justify-between hover:shadow-md transition-shadow duration-200 cursor-pointer"
+          >
+            <div>
+              <p className="text-sm font-medium text-slate-500 mb-1">{stat.title}</p>
+              <h3 className="text-2xl font-bold text-slate-800">{stat.value}</h3>
+            </div>
+            <div className={`p-3 rounded-lg ${stat.bgColor} ${stat.textColor}`}>
+              {stat.icon}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Placeholder for future content (Charts/Tables) */}
+      <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-8 h-96 flex flex-col items-center justify-center text-slate-400 border-dashed border-2 border-slate-200">
+        <div className="bg-slate-50 p-4 rounded-full mb-4">
+          <LayoutDashboard size={40} className="text-slate-300" />
+        </div>
+        <p className="font-medium">Khu vực biểu đồ và danh sách xe mới nhất</p>
+        <p className="text-sm mt-2">Sẽ được thêm vào trong các bước tiếp theo...</p>
+      </div>
+>>>>>>> master
     </div>
   );
 }

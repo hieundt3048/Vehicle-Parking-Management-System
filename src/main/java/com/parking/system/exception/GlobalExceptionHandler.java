@@ -1,51 +1,105 @@
 package com.parking.system.exception;
 
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.parking.system.dto.ApiResponse;
 
 /**
- * Global Exception Handler - Xử lý tập trung tất cả exceptions trong ứng dụng
+ * Global Exception Handler
+ * Xử lý tất cả exceptions ở một nơi
+ * Tuân thủ DRY (Don't Repeat Yourself) - không cần try-catch ở mỗi controller
+ * Tuân thủ Single Responsibility - chỉ làm nhiệm vụ xử lý exception
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     
-    // Xử lý exception khi không tìm thấy resource (Zone, Slot, etc.)
-    // Trả về HTTP 404 NOT_FOUND
+    /**
+     * Xử lý ResourceNotFoundException
+     */
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ApiResponse<Void>> handleResourceNotFound(ResourceNotFoundException ex) {
+    public ResponseEntity<ApiResponse<Object>> handleResourceNotFound(ResourceNotFoundException ex) {
         return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(ApiResponse.error(ex.getMessage()));
+            .status(HttpStatus.NOT_FOUND)
+            .body(ApiResponse.error(ex.getMessage()));
     }
     
-    // Xử lý exception khi request không hợp lệ (thiếu field, sai format, etc.)
-    // Trả về HTTP 400 BAD_REQUEST
+    /**
+     * Xử lý InvalidRequestException
+     */
     @ExceptionHandler(InvalidRequestException.class)
-    public ResponseEntity<ApiResponse<Void>> handleInvalidRequest(InvalidRequestException ex) {
+    public ResponseEntity<ApiResponse<Object>> handleInvalidRequest(InvalidRequestException ex) {
         return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(ApiResponse.error(ex.getMessage()));
+            .status(HttpStatus.BAD_REQUEST)
+            .body(ApiResponse.error(ex.getMessage()));
     }
     
-    // Xử lý IllegalArgumentException (ví dụ: enum không hợp lệ)
-    // Trả về HTTP 400 BAD_REQUEST
+    /**
+     * Xử lý UsernameNotFoundException (từ Spring Security)
+     */
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity<ApiResponse<Object>> handleUsernameNotFound(UsernameNotFoundException ex) {
+        return ResponseEntity
+            .status(HttpStatus.UNAUTHORIZED)
+            .body(ApiResponse.error("Tên đăng nhập hoặc mật khẩu không đúng"));
+    }
+    
+    /**
+     * Xử lý validation errors từ @Valid annotation
+     */
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, Object>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        Map<String, Object> errors = new HashMap<>();
+        errors.put("success", false);
+        errors.put("timestamp", LocalDateTime.now());
+        
+        Map<String, String> fieldErrors = new HashMap<>();
+        ex.getBindingResult().getFieldErrors().forEach(error -> {
+            fieldErrors.put(error.getField(), error.getDefaultMessage());
+        });
+        
+        errors.put("errors", fieldErrors);
+        return ResponseEntity.badRequest().body(errors);
+    }
+    
+    /**
+     * Xử lý IllegalArgumentException
+     */
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ApiResponse<Void>> handleIllegalArgument(IllegalArgumentException ex) {
+    public ResponseEntity<ApiResponse<Object>> handleIllegalArgument(IllegalArgumentException ex) {
         return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(ApiResponse.error(ex.getMessage()));
+            .status(HttpStatus.BAD_REQUEST)
+            .body(ApiResponse.error(ex.getMessage()));
     }
     
-    // Xử lý tất cả exceptions chưa được handle cụ thể
-    // Trả về HTTP 500 INTERNAL_SERVER_ERROR
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse<Void>> handleGeneralException(Exception ex) {
+    /**
+     * Xử lý RuntimeException chung
+     */
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ApiResponse<Object>> handleRuntimeException(RuntimeException ex) {
         return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error("Lỗi hệ thống: " + ex.getMessage()));
+            .status(HttpStatus.BAD_REQUEST)
+            .body(ApiResponse.error(ex.getMessage()));
+    }
+    
+    /**
+     * Xử lý tất cả các exception chưa được handle cụ thể
+     */
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiResponse<Object>> handleGenericException(Exception ex) {
+        // TODO: Log exception để debug (trong production nên dùng proper logger như SLF4J)
+        // ex.printStackTrace();
+        
+        return ResponseEntity
+            .status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(ApiResponse.error("Đã xảy ra lỗi hệ thống. Vui lòng thử lại sau."));
     }
 }
