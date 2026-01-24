@@ -89,11 +89,13 @@ public class TicketService {
             });
         
         // ============================================
-        // BƯỚC 4: TÌM SLOT TRỐNG (CRITICAL)
+        // BƯỚC 4: TÌM SLOT TRỐNG VỚI PESSIMISTIC LOCK
         // ============================================
+        // Sử dụng pessimistic lock để đảm bảo chỉ 1 thread có thể lấy slot này
+        // Database sẽ lock row cho đến khi transaction kết thúc
         
         ParkingSlot availableSlot = parkingSlotRepository
-            .findFirstByZoneIdAndStatus(request.getZoneId(), ParkingSlot.Status.AVAILABLE)
+            .findFirstByZoneIdAndStatusWithLock(request.getZoneId(), ParkingSlot.Status.AVAILABLE)
             .orElseThrow(() -> new RuntimeException(
                 "Khu vực " + zone.getName() + " đã hết chỗ trống. " +
                 "Vui lòng chọn khu vực khác hoặc quay lại sau."
@@ -120,7 +122,7 @@ public class TicketService {
         Ticket savedTicket = ticketRepository.save(ticket);
         
         // Log thông tin (nếu cần debug)
-        System.out.println("✅ Check-in thành công: " +
+        System.out.println("Check-in thành công: " +
             "Vé #" + savedTicket.getId() + 
             ", Biển số: " + savedTicket.getLicensePlate() + 
             ", Slot: " + availableSlot.getSlotNumber() + 
