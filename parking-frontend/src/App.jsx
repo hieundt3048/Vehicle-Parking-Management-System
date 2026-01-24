@@ -6,12 +6,9 @@ import Dashboard from './components/Dashboard';
 import ParkingMap from './components/ParkingMap';
 import CheckIn from './components/CheckIn';
 import CheckOut from './components/CheckOut';
-<<<<<<< HEAD
-=======
 import Reports from './components/Reports';
 import Employees from './components/Employees';
 import Layout from './components/Layout';
->>>>>>> master
 
 // Component để bảo vệ các route yêu cầu xác thực
 const ProtectedRoute = ({ children }) => {
@@ -25,8 +22,6 @@ const ProtectedRoute = ({ children }) => {
   return children;
 };
 
-<<<<<<< HEAD
-=======
 // Component để bảo vệ route chỉ dành cho ADMIN
 const AdminRoute = ({ children }) => {
   const token = localStorage.getItem('authToken');
@@ -46,7 +41,6 @@ const AdminRoute = ({ children }) => {
   return children;
 };
 
->>>>>>> master
 // Component để redirect user đã đăng nhập khỏi trang login
 const PublicRoute = ({ children }) => {
   const token = localStorage.getItem('authToken');
@@ -86,22 +80,14 @@ function App() {
           } 
         />
         
-<<<<<<< HEAD
-        {/* Các route yêu cầu xác thực */}
-=======
         {/* Các route yêu cầu xác thực - Wrapped trong Layout */}
->>>>>>> master
         <Route 
           path="/dashboard" 
           element={
             <ProtectedRoute>
-<<<<<<< HEAD
-              <Dashboard />
-=======
               <Layout>
                 <Dashboard />
               </Layout>
->>>>>>> master
             </ProtectedRoute>
           } 
         />
@@ -110,13 +96,9 @@ function App() {
           path="/parking-map" 
           element={
             <ProtectedRoute>
-<<<<<<< HEAD
-              <ParkingMap />
-=======
               <Layout>
                 <ParkingMap />
               </Layout>
->>>>>>> master
             </ProtectedRoute>
           } 
         />
@@ -125,13 +107,9 @@ function App() {
           path="/check-in" 
           element={
             <ProtectedRoute>
-<<<<<<< HEAD
-              <CheckIn />
-=======
               <Layout>
                 <CheckIn />
               </Layout>
->>>>>>> master
             </ProtectedRoute>
           } 
         />
@@ -140,19 +118,13 @@ function App() {
           path="/check-out" 
           element={
             <ProtectedRoute>
-<<<<<<< HEAD
-              <CheckOut />
-=======
               <Layout>
                 <CheckOut />
               </Layout>
->>>>>>> master
             </ProtectedRoute>
           } 
         />
         
-<<<<<<< HEAD
-=======
         {/* Route chỉ dành cho ADMIN - Báo cáo doanh thu */}
         <Route 
           path="/reports" 
@@ -177,7 +149,6 @@ function App() {
           } 
         />
         
->>>>>>> master
         {/* Route không tìm thấy - 404 */}
         <Route 
           path="*" 
