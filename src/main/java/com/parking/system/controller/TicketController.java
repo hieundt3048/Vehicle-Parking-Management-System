@@ -2,8 +2,6 @@ package com.parking.system.controller;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,9 +24,12 @@ import com.parking.system.service.TicketService;
 @RestController
 @RequestMapping("/api/tickets")
 public class TicketController {
+    
+    private final TicketService ticketService;
 
-    @Autowired
-    private TicketService ticketService;
+    public TicketController(TicketService ticketService) {
+        this.ticketService = ticketService;
+    }
 
     /**
      * Tạo vé mới (xe vào)
@@ -37,16 +38,10 @@ public class TicketController {
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
     public ResponseEntity<ApiResponse<Ticket>> createTicket(@RequestBody CreateTicketRequest request) {
-        try {
-            Ticket ticket = ticketService.createTicket(request);
-            return ResponseEntity.ok(
-                new ApiResponse<>(true, "Tạo vé thành công", ticket)
-            );
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                new ApiResponse<>(false, e.getMessage(), null)
-            );
-        }
+        Ticket ticket = ticketService.createTicket(request);
+        return ResponseEntity.ok(
+            new ApiResponse<>(true, "Tạo vé thành công", ticket)
+        );
     }
 
     /**
@@ -56,16 +51,10 @@ public class TicketController {
     @PostMapping("/{ticketId}/checkout")
     @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
     public ResponseEntity<ApiResponse<Ticket>> checkoutTicket(@PathVariable Long ticketId) {
-        try {
-            Ticket ticket = ticketService.processExit(ticketId);
-            return ResponseEntity.ok(
-                new ApiResponse<>(true, "Thanh toán thành công", ticket)
-            );
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                new ApiResponse<>(false, e.getMessage(), null)
-            );
-        }
+        Ticket ticket = ticketService.processExit(ticketId);
+        return ResponseEntity.ok(
+            new ApiResponse<>(true, "Thanh toán thành công", ticket)
+        );
     }
 
     /**
@@ -75,16 +64,10 @@ public class TicketController {
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
     public ResponseEntity<ApiResponse<List<Ticket>>> getAllTickets() {
-        try {
-            List<Ticket> tickets = ticketService.getAllTickets();
-            return ResponseEntity.ok(
-                new ApiResponse<>(true, "Lấy danh sách vé thành công", tickets)
-            );
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                new ApiResponse<>(false, e.getMessage(), null)
-            );
-        }
+        List<Ticket> tickets = ticketService.getAllTickets();
+        return ResponseEntity.ok(
+            new ApiResponse<>(true, "Lấy danh sách vé thành công", tickets)
+        );
     }
 
     /**
@@ -94,16 +77,10 @@ public class TicketController {
     @GetMapping("/active")
     @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
     public ResponseEntity<ApiResponse<List<Ticket>>> getActiveTickets() {
-        try {
-            List<Ticket> tickets = ticketService.getActiveTickets();
-            return ResponseEntity.ok(
-                new ApiResponse<>(true, "Lấy danh sách vé active thành công", tickets)
-            );
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                new ApiResponse<>(false, e.getMessage(), null)
-            );
-        }
+        List<Ticket> tickets = ticketService.getActiveTickets();
+        return ResponseEntity.ok(
+            new ApiResponse<>(true, "Lấy danh sách vé active thành công", tickets)
+        );
     }
 
     /**
@@ -113,15 +90,9 @@ public class TicketController {
     @GetMapping("/search")
     @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
     public ResponseEntity<ApiResponse<Ticket>> searchTicketByPlate(@RequestParam String plateNumber) {
-        try {
-            Ticket ticket = ticketService.getActiveTicketByLicensePlate(plateNumber);
-            return ResponseEntity.ok(
-                new ApiResponse<>(true, "Tìm thấy vé", ticket)
-            );
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                new ApiResponse<>(false, e.getMessage(), null)
-            );
-        }
+        Ticket ticket = ticketService.getActiveTicketByLicensePlate(plateNumber);
+        return ResponseEntity.ok(
+            new ApiResponse<>(true, "Tìm thấy vé", ticket)
+        );
     }
 }

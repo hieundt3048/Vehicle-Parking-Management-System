@@ -3,9 +3,11 @@ package com.parking.system.service;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.parking.system.dto.CreateTicketRequest;
 import com.parking.system.entity.ParkingSlot;
@@ -21,20 +23,25 @@ import com.parking.system.service.factory.TicketFactory;
 @Service
 public class TicketService {
     
-    @Autowired
-    private TicketRepository ticketRepository;
-    
-    @Autowired
-    private ParkingSlotRepository parkingSlotRepository;
-    
-    @Autowired
-    private ParkingZoneRepository parkingZoneRepository;
-    
-    @Autowired
-    private FeeCalculationService feeCalculationService;
-    
-    @Autowired
-    private TicketFactory ticketFactory;
+    private static final Logger logger = LoggerFactory.getLogger(TicketService.class);
+
+    private final TicketRepository ticketRepository;
+    private final ParkingSlotRepository parkingSlotRepository;
+    private final ParkingZoneRepository parkingZoneRepository;
+    private final FeeCalculationService feeCalculationService;
+    private final TicketFactory ticketFactory;
+
+    public TicketService(TicketRepository ticketRepository,
+                         ParkingSlotRepository parkingSlotRepository,
+                         ParkingZoneRepository parkingZoneRepository,
+                         FeeCalculationService feeCalculationService,
+                         TicketFactory ticketFactory) {
+        this.ticketRepository = ticketRepository;
+        this.parkingSlotRepository = parkingSlotRepository;
+        this.parkingZoneRepository = parkingZoneRepository;
+        this.feeCalculationService = feeCalculationService;
+        this.ticketFactory = ticketFactory;
+    }
     
     /**
      * Tạo vé xe mới
@@ -122,11 +129,11 @@ public class TicketService {
         Ticket savedTicket = ticketRepository.save(ticket);
         
         // Log thông tin (nếu cần debug)
-        System.out.println("Check-in thành công: " +
-            "Vé #" + savedTicket.getId() + 
-            ", Biển số: " + savedTicket.getLicensePlate() + 
-            ", Slot: " + availableSlot.getSlotNumber() + 
-            ", Zone: " + zone.getName());
+        logger.info("Check-in thành công: Vé #{}, Biển số: {}, Slot: {}, Zone: {}",
+            savedTicket.getId(),
+            savedTicket.getLicensePlate(),
+            availableSlot.getSlotNumber(),
+            zone.getName());
         
         return savedTicket;
     }
