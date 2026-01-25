@@ -13,12 +13,12 @@ import Layout from './components/Layout';
 // Component để bảo vệ các route yêu cầu xác thực
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem('authToken');
-  
+
   if (!token) {
     // Chưa đăng nhập -> chuyển về trang login
     return <Navigate to="/login" replace />;
   }
-  
+
   return children;
 };
 
@@ -26,30 +26,30 @@ const ProtectedRoute = ({ children }) => {
 const AdminRoute = ({ children }) => {
   const token = localStorage.getItem('authToken');
   const userData = localStorage.getItem('user');
-  
+
   if (!token) {
     // Chưa đăng nhập -> chuyển về trang login
     return <Navigate to="/login" replace />;
   }
-  
+
   const user = userData ? JSON.parse(userData) : null;
   if (user?.role !== 'ADMIN') {
     // Không phải ADMIN -> chuyển về dashboard
     return <Navigate to="/dashboard" replace />;
   }
-  
+
   return children;
 };
 
 // Component để redirect user đã đăng nhập khỏi trang login
 const PublicRoute = ({ children }) => {
   const token = localStorage.getItem('authToken');
-  
+
   if (token) {
     // Đã đăng nhập -> chuyển về dashboard
     return <Navigate to="/dashboard" replace />;
   }
-  
+
   return children;
 };
 
@@ -59,113 +59,111 @@ function App() {
       <Routes>
         {/* Route mặc định - chuyển hướng về login */}
         <Route path="/" element={<Navigate to="/login" replace />} />
-        
+
         {/* Route công khai - Login */}
-        <Route 
-          path="/login" 
+        <Route
+          path="/login"
           element={
             <PublicRoute>
               <Login />
             </PublicRoute>
-          } 
+          }
         />
-        
+
         {/* Route công khai - Register */}
-        <Route 
-          path="/register" 
+        <Route
+          path="/register"
           element={
             <PublicRoute>
               <Register />
             </PublicRoute>
-          } 
+          }
         />
-        
+
         {/* Các route yêu cầu xác thực - Wrapped trong Layout */}
-        <Route 
-          path="/dashboard" 
+        <Route
+          path="/dashboard"
           element={
             <ProtectedRoute>
               <Layout>
                 <Dashboard />
               </Layout>
             </ProtectedRoute>
-          } 
+          }
         />
-        
-        <Route 
-          path="/parking-map" 
+
+        <Route
+          path="/parking-map"
           element={
             <ProtectedRoute>
               <Layout>
                 <ParkingMap />
               </Layout>
             </ProtectedRoute>
-          } 
+          }
         />
-        
-        <Route 
-          path="/check-in" 
+
+        <Route
+          path="/check-in"
           element={
-            <ProtectedRoute>
-              <Layout>
-                <CheckIn />
-              </Layout>
-            </ProtectedRoute>
-          } 
+            <Layout>
+              <CheckIn />
+            </Layout>
+          }
         />
-        
-        <Route 
-          path="/check-out" 
+
+        <Route
+          path="/check-out"
           element={
             <ProtectedRoute>
               <Layout>
                 <CheckOut />
               </Layout>
             </ProtectedRoute>
-          } 
+          }
         />
-        
+
         {/* Route chỉ dành cho ADMIN - Báo cáo doanh thu */}
-        <Route 
-          path="/reports" 
+        <Route
+          path="/reports"
           element={
             <AdminRoute>
               <Layout>
                 <Reports />
               </Layout>
             </AdminRoute>
-          } 
+          }
         />
-        
+
         {/* Route chỉ dành cho ADMIN - Quản lý nhân viên */}
-        <Route 
-          path="/employees" 
+        <Route
+          path="/employees"
           element={
             <AdminRoute>
               <Layout>
                 <Employees />
               </Layout>
             </AdminRoute>
-          } 
+          }
         />
-        
+
         {/* Route không tìm thấy - 404 */}
-        <Route 
-          path="*" 
+        <Route
+          path="*"
           element={
             <div className="min-h-screen bg-slate-900 flex items-center justify-center">
               <div className="text-center">
                 <h1 className="text-6xl font-bold text-white mb-4">404</h1>
                 <p className="text-slate-400 mb-8">Trang không tồn tại</p>
-                <a 
-                  href="/dashboard" 
+                <a
+                  href="/dashboard"
                   className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors inline-block"
                 >
                   Về Trang Chủ
                 </a>
               </div>
             </div>
-          } 
+          }
         />
       </Routes>
     </BrowserRouter>
