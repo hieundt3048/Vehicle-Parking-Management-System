@@ -86,14 +86,18 @@ public class TicketService {
         // BƯỚC 3: KIỂM TRA XE ĐÃ GỬI TRONG BÃI CHƯA
         // ============================================
         
-        ticketRepository.findByLicensePlateAndStatus(request.getLicensePlate(), Ticket.Status.ACTIVE)
-            .ifPresent(existingTicket -> {
-                throw new InvalidRequestException(
-                    "Xe có biển số " + request.getLicensePlate() + 
-                    " đang gửi trong bãi (Vé #" + existingTicket.getId() + 
-                    ", Slot: " + existingTicket.getSlot().getSlotNumber() + ")"
-                );
-            });
+        List<Ticket> existingTickets = ticketRepository.findByLicensePlateAndStatus(
+            request.getLicensePlate(), Ticket.Status.ACTIVE
+        );
+
+        if (!existingTickets.isEmpty()) {
+            Ticket existingTicket = existingTickets.get(0);
+            throw new InvalidRequestException(
+                "Xe có biển số " + request.getLicensePlate() +
+                " đang gửi trong bãi (Vé #" + existingTicket.getId() +
+                ", Slot: " + existingTicket.getSlot().getSlotNumber() + ")"
+            );
+        }
         
         // ============================================
         // BƯỚC 4: TÌM SLOT TRỐNG VỚI PESSIMISTIC LOCK
@@ -102,7 +106,7 @@ public class TicketService {
         // Database sẽ lock row cho đến khi transaction kết thúc
         
         ParkingSlot availableSlot = parkingSlotRepository
-            .findFirstByZoneIdAndStatusWithLock(request.getZoneId(), ParkingSlot.Status.AVAILABLE)
+            .findFirstByZoneIdAndStatusOrderBySlotNumberAsc(request.getZoneId(), ParkingSlot.Status.AVAILABLE)
             .orElseThrow(() -> new RuntimeException(
                 "Khu vực " + zone.getName() + " đã hết chỗ trống. " +
                 "Vui lòng chọn khu vực khác hoặc quay lại sau."
@@ -205,8 +209,20 @@ public class TicketService {
      * Lấy vé đang hoạt động theo biển số
      */
     public Ticket getActiveTicketByLicensePlate(String licensePlate) {
-        return ticketRepository.findByLicensePlateAndStatus(licensePlate, Ticket.Status.ACTIVE)
-            .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy vé đang hoạt động cho xe: " + licensePlate));
+        List<Ticket> tickets = ticketRepository.findByLicensePlateAndStatus(licensePlate, Ticket.Status.ACTIVE);
+
+        if (tickets.isEmpty()) {
+            throw new ResourceNotFoundException("Không tìm thấy vé đang hoạt động cho xe: " + licensePlate);
+        }
+
+        if (tickets.size() > 1) {
+            throw new InvalidRequestException(
+                "Phát hiện nhiều vé đang hoạt động cho biển số: " + licensePlate +
+                ". Vui lòng kiểm tra và đóng các vé dư thừa trước."
+            );
+        }
+
+        return tickets.get(0);
     }
     
     /**
