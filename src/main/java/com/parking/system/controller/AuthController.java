@@ -3,7 +3,7 @@ package com.parking.system.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,13 +21,12 @@ import com.parking.system.service.UserService;
 import jakarta.validation.Valid;
 
 /**
- * Controller xử lý authentication và user management
+ * Controller xử lý authentication và user managemen
  * Tuân thủ Single Responsibility: chỉ xử lý HTTP requests/responses
  * Business logic được delegate cho Service layer
  */
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174", "http://localhost:3000"})
 public class AuthController {
     
     private final UserService userService;
@@ -108,9 +107,10 @@ public class AuthController {
      * API lấy danh sách tất cả users
      * GET /api/auth/users
      * 
-     * Chỉ dành cho Admin (được bảo vệ bởi SecurityConfig)
+     * Chỉ dành cho Admin
      */
     @GetMapping("/users")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<List<User>>> getAllUsers() {
         List<User> users = userService.getAllUsers();
         
