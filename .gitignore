@@ -39,3 +39,4 @@ env/
 
 ### Temporary ignore for development ###
 
+node_modules/
