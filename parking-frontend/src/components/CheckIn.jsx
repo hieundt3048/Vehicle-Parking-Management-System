@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Bike, Car, Printer, ArrowRight, QrCode, History } from 'lucide-react';
 import { ticketsAPI, zonesAPI } from '../services/api';
+import UploadPlate from './PlateUpload';
+
 
 /**
  * Check-in Component - Chỉ hiển thị nội dung
@@ -90,7 +92,7 @@ export default function CheckIn() {
       };
 
       const response = await ticketsAPI.create(ticketData);
-      
+
       // Lưu thông tin check-in mới nhất
       setLastCheckIn({
         plate: plateNumber,
@@ -107,10 +109,10 @@ export default function CheckIn() {
       }));
 
       alert(`Đã cấp vé thành công cho xe ${plateNumber}!\nSlot: ${response.data.data.slot?.slotNumber || suggestedSlot}`);
-      
+
       // Reset form
       setPlateNumber('');
-      
+
     } catch (error) {
       console.error('Check-in error:', error);
       alert(error.response?.data?.message || 'Có lỗi xảy ra khi tạo vé. Vui lòng thử lại.');
@@ -121,11 +123,11 @@ export default function CheckIn() {
 
   return (
     <div className="min-h-screen bg-slate-100 p-4 md:p-8 font-sans flex flex-col md:flex-row gap-6">
-      
+
       {/* Cột trái: Form nhập liệu chính */}
       <div className="flex-1 max-w-2xl mx-auto w-full">
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200">
-          
+
           {/* Header */}
           <div className="bg-slate-800 p-6 text-white flex items-center justify-between">
             <div>
@@ -138,15 +140,15 @@ export default function CheckIn() {
           </div>
 
           <div className="p-6 md:p-8 space-y-8">
-            
+
             {/* 1. Chọn loại xe (Big Toggle Buttons) */}
             <div className="grid grid-cols-2 gap-4">
               <button
                 type="button"
                 onClick={() => setVehicleType('MOTORBIKE')}
                 className={`relative h-32 rounded-xl border-2 flex flex-col items-center justify-center gap-2 transition-all duration-200
-                  ${vehicleType === 'MOTORBIKE' 
-                    ? 'bg-blue-50 border-blue-500 shadow-inner ring-2 ring-blue-200 ring-offset-2' 
+                  ${vehicleType === 'MOTORBIKE'
+                    ? 'bg-blue-50 border-blue-500 shadow-inner ring-2 ring-blue-200 ring-offset-2'
                     : 'bg-slate-50 border-slate-200 text-slate-400 hover:bg-white hover:border-slate-300'
                   }
                 `}
@@ -166,8 +168,8 @@ export default function CheckIn() {
                 type="button"
                 onClick={() => setVehicleType('CAR')}
                 className={`relative h-32 rounded-xl border-2 flex flex-col items-center justify-center gap-2 transition-all duration-200
-                  ${vehicleType === 'CAR' 
-                    ? 'bg-orange-50 border-orange-500 shadow-inner ring-2 ring-orange-200 ring-offset-2' 
+                  ${vehicleType === 'CAR'
+                    ? 'bg-orange-50 border-orange-500 shadow-inner ring-2 ring-orange-200 ring-offset-2'
                     : 'bg-slate-50 border-slate-200 text-slate-400 hover:bg-white hover:border-slate-300'
                   }
                 `}
@@ -202,7 +204,14 @@ export default function CheckIn() {
                   </div>
                 </div>
               </div>
-
+              {/* Upload ảnh biển số (tùy chọn – không bắt buộc) */}
+              <UploadPlate
+                onDetected={(detectedPlate) => {
+                  if (detectedPlate) {
+                    setPlateNumber(detectedPlate.toUpperCase());
+                  }
+                }}
+              />
               <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="bg-emerald-100 p-2 rounded-lg">
@@ -247,7 +256,7 @@ export default function CheckIn() {
 
       {/* Cột phải: Lịch sử gần nhất & Thông tin phụ */}
       <div className="w-full md:w-80 space-y-6">
-        
+
         {/* Card Lịch sử */}
         <div className="bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden">
           <div className="bg-slate-50 px-4 py-3 border-b border-slate-200 flex items-center gap-2">
@@ -284,19 +293,19 @@ export default function CheckIn() {
           <h3 className="text-sm font-medium text-slate-400 mb-4 uppercase text-xs tracking-wider">Thống kê ca làm việc</h3>
           <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <span className="flex items-center gap-2"><Bike size={16}/> Xe máy vào</span>
+              <span className="flex items-center gap-2"><Bike size={16} /> Xe máy vào</span>
               <span className="font-bold text-lg">{stats.motorbikeCount}</span>
             </div>
             <div className="w-full bg-slate-700 h-1.5 rounded-full overflow-hidden">
-              <div className="bg-blue-500 h-full" style={{width: `${Math.min((stats.motorbikeCount / 20) * 100, 100)}%`}}></div>
+              <div className="bg-blue-500 h-full" style={{ width: `${Math.min((stats.motorbikeCount / 20) * 100, 100)}%` }}></div>
             </div>
-            
+
             <div className="flex justify-between items-center pt-2">
-              <span className="flex items-center gap-2"><Car size={16}/> Ô tô vào</span>
+              <span className="flex items-center gap-2"><Car size={16} /> Ô tô vào</span>
               <span className="font-bold text-lg">{stats.carCount}</span>
             </div>
-             <div className="w-full bg-slate-700 h-1.5 rounded-full overflow-hidden">
-              <div className="bg-orange-500 h-full" style={{width: `${Math.min((stats.carCount / 10) * 100, 100)}%`}}></div>
+            <div className="w-full bg-slate-700 h-1.5 rounded-full overflow-hidden">
+              <div className="bg-orange-500 h-full" style={{ width: `${Math.min((stats.carCount / 10) * 100, 100)}%` }}></div>
             </div>
           </div>
         </div>

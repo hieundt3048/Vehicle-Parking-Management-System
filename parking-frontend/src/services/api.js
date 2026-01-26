@@ -128,6 +128,33 @@ export const reportsAPI = {
   getOccupancyStats: () => 
     api.get('/reports/occupancy'),
 };
+// ========================
+// Plate Recognition API (Upload ảnh biển số)
+// ========================
+const YOLO_SERVICE_URL = import.meta.env.VITE_YOLO_SERVICE_URL || 'http://localhost:5000';
+
+export const plateAPI = {
+  uploadPlateImage: async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    // Call Python YOLO service directly
+    const response = await axios.post(`${YOLO_SERVICE_URL}/detect-plate`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      timeout: 30000, // 30 seconds for image processing
+    });
+    
+    // Transform response to match expected format
+    return {
+      data: {
+        plateNumber: response.data.plate,
+        rawResults: response.data.raw_results,
+      }
+    };
+  },
+};
 
 export default api;
 

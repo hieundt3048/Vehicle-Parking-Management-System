@@ -32,6 +32,11 @@ build/
 ### VS Code ###
 .vscode/
 
+### Python Virtual Environment ###
+venv/
+env/
+.venv/
+
 ### Temporary ignore for development ###
 
 node_modules/

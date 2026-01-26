@@ -21,7 +21,7 @@ import com.parking.system.service.UserService;
 import jakarta.validation.Valid;
 
 /**
- * Controller xử lý authentication và user management
+ * Controller xử lý authentication và user managemen
  * Tuân thủ Single Responsibility: chỉ xử lý HTTP requests/responses
  * Business logic được delegate cho Service layer
  */
