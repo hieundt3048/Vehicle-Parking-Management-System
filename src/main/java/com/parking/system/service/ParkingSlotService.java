@@ -22,7 +22,7 @@ public class ParkingSlotService {
     }
     
     /**
-     * Lấy danh sách các slot đang trống (toàn bộ hệ thống)
+     * Lấy danh sách các slot đang trống 
      */
     public List<ParkingSlot> getAvailableSlots() {
         return slotRepository.findByStatus(ParkingSlot.Status.AVAILABLE);

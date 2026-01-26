@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,7 +31,6 @@ import com.parking.system.service.ParkingZoneService;
  */
 @RestController
 @RequestMapping("/api/zones")
-@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174", "http://localhost:3000"})
 public class ParkingZoneController {
     
     private final ParkingZoneService zoneService;
@@ -49,6 +48,7 @@ public class ParkingZoneController {
      * Body: { "name": "Khu A", "vehicleType": "MOTORBIKE", "totalSlots": 20 }
      */
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<ParkingZone>> createZone(@RequestBody CreateZoneRequest request) {
         ParkingZone zone = zoneService.createZone(request);
         return ResponseEntity
@@ -108,6 +108,7 @@ public class ParkingZoneController {
      * Note: Gọi trực tiếp ParkingSlotService vì đây là slot operation
      */
     @PutMapping("/slots/{slotId}/status")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<ParkingSlot>> updateSlotStatus(
             @PathVariable Long slotId, 
             @RequestBody UpdateSlotStatusRequest request) {

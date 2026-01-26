@@ -2,9 +2,8 @@ package com.parking.system.controller;
 
 import java.util.List;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,80 +18,81 @@ import com.parking.system.entity.Ticket;
 import com.parking.system.service.TicketService;
 
 /**
- * Controller xử lý các API liên quan đến Ticket (vé xe)
- * Tuân thủ Single Responsibility: chỉ xử lý HTTP requests/responses
- * Business logic được delegate cho TicketService
+ * Ticket Controller - Quản lý vé xe vào/ra
+ * Endpoints: /api/tickets
  */
 @RestController
 @RequestMapping("/api/tickets")
-@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174", "http://localhost:3000"})
 public class TicketController {
-
-    private final TicketService ticketService;
     
-    // Constructor injection - tuân thủ Dependency Inversion Principle
+    private final TicketService ticketService;
+
     public TicketController(TicketService ticketService) {
         this.ticketService = ticketService;
     }
-    
+
     /**
-     * API tạo vé mới (Check-in)
+     * Tạo vé mới (xe vào)
      * POST /api/tickets
      */
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
     public ResponseEntity<ApiResponse<Ticket>> createTicket(@RequestBody CreateTicketRequest request) {
         Ticket ticket = ticketService.createTicket(request);
-        return ResponseEntity.status(HttpStatus.CREATED)
-            .body(new ApiResponse<>(true, "Tạo vé thành công", ticket));
+        return ResponseEntity.ok(
+            new ApiResponse<>(true, "Tạo vé thành công", ticket)
+        );
     }
-    
+
     /**
-     * API xử lý xuất bãi (Check-out)
-     * POST /api/tickets/{id}/checkout
+     * Xử lý xe ra (checkout)
+     * POST /api/tickets/{ticketId}/checkout
      */
-    @PostMapping("/{id}/checkout")
-    public ResponseEntity<ApiResponse<Ticket>> checkoutTicket(@PathVariable Long id) {
-        Ticket ticket = ticketService.processExit(id);
-        return ResponseEntity.ok(new ApiResponse<>(true, "Xuất bãi thành công", ticket));
+    @PostMapping("/{ticketId}/checkout")
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
+    public ResponseEntity<ApiResponse<Ticket>> checkoutTicket(@PathVariable Long ticketId) {
+        Ticket ticket = ticketService.processExit(ticketId);
+        return ResponseEntity.ok(
+            new ApiResponse<>(true, "Thanh toán thành công", ticket)
+        );
     }
-    
+
     /**
-     * API lấy tất cả vé
+     * Lấy tất cả vé
      * GET /api/tickets
      */
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
     public ResponseEntity<ApiResponse<List<Ticket>>> getAllTickets() {
         List<Ticket> tickets = ticketService.getAllTickets();
-        return ResponseEntity.ok(new ApiResponse<>(true, "Lấy danh sách vé thành công", tickets));
+        return ResponseEntity.ok(
+            new ApiResponse<>(true, "Lấy danh sách vé thành công", tickets)
+        );
     }
-    
+
     /**
-     * API lấy vé theo ID
-     * GET /api/tickets/{id}
-     */
-    @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Ticket>> getTicketById(@PathVariable Long id) {
-        Ticket ticket = ticketService.getTicketById(id);
-        return ResponseEntity.ok(new ApiResponse<>(true, "Lấy thông tin vé thành công", ticket));
-    }
-    
-    /**
-     * API tìm vé theo biển số
-     * GET /api/tickets/search?plateNumber={plateNumber}
-     */
-    @GetMapping("/search")
-    public ResponseEntity<ApiResponse<Ticket>> searchByPlateNumber(@RequestParam String plateNumber) {
-        Ticket ticket = ticketService.getActiveTicketByLicensePlate(plateNumber);
-        return ResponseEntity.ok(new ApiResponse<>(true, "Tìm thấy vé", ticket));
-    }
-    
-    /**
-     * API lấy danh sách vé đang hoạt động
+     * Lấy tất cả vé đang ACTIVE
      * GET /api/tickets/active
      */
     @GetMapping("/active")
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
     public ResponseEntity<ApiResponse<List<Ticket>>> getActiveTickets() {
         List<Ticket> tickets = ticketService.getActiveTickets();
-        return ResponseEntity.ok(new ApiResponse<>(true, "Lấy danh sách vé đang hoạt động thành công", tickets));
+        return ResponseEntity.ok(
+            new ApiResponse<>(true, "Lấy danh sách vé active thành công", tickets)
+        );
+    }
+
+    /**
+     * Tìm kiếm vé theo biển số xe (cho check-out)
+     * GET /api/tickets/search?plateNumber={plateNumber}
+     */
+    @GetMapping("/search")
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
+    public ResponseEntity<ApiResponse<Ticket>> searchTicketByPlate(@RequestParam String plateNumber) {
+        Ticket ticket = ticketService.getActiveTicketByLicensePlate(plateNumber);
+        return ResponseEntity.ok(
+            new ApiResponse<>(true, "Tìm thấy vé", ticket)
+        );
     }
 }

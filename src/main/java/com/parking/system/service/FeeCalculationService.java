@@ -7,24 +7,30 @@ import org.springframework.stereotype.Service;
 
 import com.parking.system.config.FeeConfiguration;
 import com.parking.system.entity.ParkingZone;
+import com.parking.system.service.strategy.FeeStrategy;
+import com.parking.system.service.strategy.FeeStrategyFactory;
 
 /**
  * Service tính toán phí gửi xe
  * Tuân thủ Single Responsibility: chỉ làm một việc là tính phí
- * Tuân thủ Open/Closed: dễ dàng mở rộng bằng cách thay đổi FeeConfiguration
+ * Tuân thủ Open/Closed: dễ dàng mở rộng bằng cách thêm Strategy mới
+ * Sử dụng Strategy Pattern để tính phí linh hoạt theo loại xe
  */
 @Service
 public class FeeCalculationService {
     
     private final FeeConfiguration feeConfig;
+    private final FeeStrategyFactory strategyFactory;
     
-    // Constructor injection để có thể inject configuration
-    public FeeCalculationService(FeeConfiguration feeConfig) {
+    // Constructor injection để inject configuration và strategy factory
+    public FeeCalculationService(FeeConfiguration feeConfig, FeeStrategyFactory strategyFactory) {
         this.feeConfig = feeConfig;
+        this.strategyFactory = strategyFactory;
     }
 
     /**
      * Tính phí gửi xe dựa trên thời gian và loại xe
+     * Sử dụng Strategy Pattern để chọn chiến lược tính phí phù hợp
      * 
      * @param entryTime Thời gian vào
      * @param exitTime Thời gian ra
@@ -38,12 +44,9 @@ public class FeeCalculationService {
         // Tính thời gian gửi 
         long totalHours = calculateParkingHours(entryTime, exitTime);
         
-        // Chọn công thức theo loại xe
-        if (vehicleType == ParkingZone.VehicleType.MOTORBIKE) {
-            return calculate(totalHours, feeConfig.getMotorbikeFirstBlock(), feeConfig.getMotorbikeNextHour());
-        } else {
-            return calculate(totalHours, feeConfig.getCarFirstBlock(), feeConfig.getCarNextHour());
-        }
+        // Lấy strategy phù hợp với loại xe và tính phí
+        FeeStrategy strategy = strategyFactory.getStrategy(vehicleType);
+        return strategy.calculateFee(totalHours, feeConfig);
     }
     
     /**
@@ -68,19 +71,5 @@ public class FeeCalculationService {
         
         // Nếu gửi chưa đến 1 phút cũng tính tối thiểu là 1 giờ
         return hours == 0 ? 1 : hours;
-    }
-
-    /**
-     * Công thức tính phí chung
-     * Block đầu tiên: firstBlockPrice (mặc định 2 giờ)
-     * Các giờ tiếp theo: nextHourPrice per giờ
-     */
-    private Double calculate(long totalHours, double firstBlockPrice, double nextHourPrice) {
-        if (totalHours <= feeConfig.getFirstBlockHours()) {
-            return firstBlockPrice;
-        } else {
-            long extraHours = totalHours - feeConfig.getFirstBlockHours();
-            return firstBlockPrice + (extraHours * nextHourPrice);
-        }
     }
 }
