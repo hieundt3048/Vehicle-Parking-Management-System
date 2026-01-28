@@ -156,5 +156,13 @@ export const plateAPI = {
   },
 };
 
+// ========================
+// Fees API (Lấy cấu hình phí)
+// ========================
+export const feesAPI = {
+  getConfig: () => 
+    api.get('/fees/config'),
+};
+
 export default api;
 

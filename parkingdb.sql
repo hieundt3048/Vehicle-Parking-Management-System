@@ -4,10 +4,7 @@
 -- ====================================================================
 
 -- Bước 1: Xóa tất cả tables cũ (nếu có)
-<<<<<<< HEAD
-DROP TABLE IF EXISTS monthly_tickets;
-=======
->>>>>>> master
+
 DROP TABLE IF EXISTS tickets;
 DROP TABLE IF EXISTS parking_slots;
 DROP TABLE IF EXISTS parking_zones;
@@ -63,23 +60,6 @@ CREATE TABLE tickets (
     INDEX idx_status_entry (status, entry_time)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-<<<<<<< HEAD
--- Table: monthly_tickets
-CREATE TABLE monthly_tickets (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    card_id VARCHAR(50) NOT NULL UNIQUE,
-    license_plate VARCHAR(20) NOT NULL,
-    vehicle_type VARCHAR(20) NOT NULL,
-    start_date DATE NOT NULL,
-    end_date DATE NOT NULL,
-    monthly_fee DOUBLE NOT NULL,
-    status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
-    INDEX idx_card (card_id),
-    INDEX idx_status (status)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-=======
->>>>>>> master
 -- ====================================================================
 -- Bước 3: Insert dữ liệu mẫu
 -- ====================================================================

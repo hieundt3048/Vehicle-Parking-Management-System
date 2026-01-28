@@ -8,7 +8,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -17,11 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.parking.system.dto.ApiResponse;
 import com.parking.system.dto.AvailableSlotsResponse;
 import com.parking.system.dto.CreateZoneRequest;
-import com.parking.system.dto.UpdateSlotStatusRequest;
 import com.parking.system.dto.ZoneWithSlotsResponse;
 import com.parking.system.entity.ParkingSlot;
 import com.parking.system.entity.ParkingZone;
-import com.parking.system.exception.InvalidRequestException;
 import com.parking.system.service.ParkingSlotService;
 import com.parking.system.service.ParkingZoneService;
 
@@ -36,7 +33,6 @@ public class ParkingZoneController {
     private final ParkingZoneService zoneService;
     private final ParkingSlotService slotService;
     
-    // Constructor injection - tuân thủ Dependency Inversion Principle
     public ParkingZoneController(ParkingZoneService zoneService, ParkingSlotService slotService) {
         this.zoneService = zoneService;
         this.slotService = slotService;
@@ -99,33 +95,10 @@ public class ParkingZoneController {
         
         return ResponseEntity.ok(ApiResponse.success(response));
     }
-    
-    /**
-     * API: Cập nhật trạng thái slot (Available <-> Occupied)
-     * PUT /api/zones/slots/{slotId}/status
-     * Body: { "status": "OCCUPIED" }
-     * 
-     * Note: Gọi trực tiếp ParkingSlotService vì đây là slot operation
-     */
-    @PutMapping("/slots/{slotId}/status")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<ParkingSlot>> updateSlotStatus(
-            @PathVariable Long slotId, 
-            @RequestBody UpdateSlotStatusRequest request) {
-        
-        if (request.getStatus() == null) {
-            throw new InvalidRequestException("Trường 'status' là bắt buộc");
-        }
-        
-        ParkingSlot updatedSlot = slotService.updateSlotStatus(slotId, request.getStatus());
-        return ResponseEntity.ok(ApiResponse.success("Cập nhật trạng thái slot thành công", updatedSlot));
-    }
-    
+
     /**
      * API: Lấy tất cả slots của một zone
      * GET /api/zones/{zoneId}/slots
-     * 
-     * Note: Gọi ZoneService vì cần thông tin zone và thống kê
      */
     @GetMapping("/{zoneId}/slots")
     public ResponseEntity<ApiResponse<ZoneWithSlotsResponse>> getSlotsByZone(@PathVariable Long zoneId) {

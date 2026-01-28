@@ -3,11 +3,10 @@ package com.parking.system.service;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.parking.system.dto.CreateTicketRequest;
 import com.parking.system.entity.ParkingSlot;
@@ -125,19 +124,12 @@ public class TicketService {
             LocalDateTime.now()
         );
         
-        // Cập nhật trạng thái slot NGAY LẬP TỨC (quan trọng để tránh race condition)
+        // Cập nhật trạng thái slot NGAY LẬP TỨC
         availableSlot.setStatus(ParkingSlot.Status.OCCUPIED);
         parkingSlotRepository.save(availableSlot);
         
         // Lưu vé xuống database
         Ticket savedTicket = ticketRepository.save(ticket);
-        
-        // Log thông tin (nếu cần debug)
-        logger.info("Check-in thành công: Vé #{}, Biển số: {}, Slot: {}, Zone: {}",
-            savedTicket.getId(),
-            savedTicket.getLicensePlate(),
-            availableSlot.getSlotNumber(),
-            zone.getName());
         
         return savedTicket;
     }

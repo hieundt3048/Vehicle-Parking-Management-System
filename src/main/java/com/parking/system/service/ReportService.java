@@ -76,6 +76,7 @@ public class ReportService {
 			end
 		);
 
+		//chuyển đổi object thành số tiền
 		double revenue = tickets.stream()
 			.mapToDouble(t -> t.getTotalAmount() != null ? t.getTotalAmount() : 0.0)
 			.sum();
