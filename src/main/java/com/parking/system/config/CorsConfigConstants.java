@@ -4,7 +4,6 @@ package com.parking.system.config;
  * CORS Configuration Constants
  * Tập trung config CORS cho phép frontend (localhost:5173) gọi API backend (localhost:8080)
  * Tránh hardcode lặp lại trong nhiều file - Tuân thủ DRY principle
- * Dùng trong: SecurityConfig.java, WebConfig.java
  */
 public final class CorsConfigConstants {
     
@@ -15,7 +14,6 @@ public final class CorsConfigConstants {
     
     /**
      * Các frontend origins được phép gọi API
-     * Production: thay bằng domain thật như "https://yourapp.com"
      */
     public static final String[] ALLOWED_ORIGINS = {
         "http://localhost:5173",  // Vite dev server

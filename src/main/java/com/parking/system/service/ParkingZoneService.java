@@ -110,7 +110,6 @@ public class ParkingZoneService {
     
     /**
      * Helper: Đếm số slot available cho việc tạo response
-     * Chỉ dùng nội bộ trong getZoneWithSlots()
      */
     private long countAvailableSlots(Long zoneId) {
         return slotService.countAvailableSlotsByZone(zoneId);

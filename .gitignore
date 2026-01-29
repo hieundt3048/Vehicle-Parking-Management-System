@@ -40,3 +40,6 @@ env/
 ### Temporary ignore for development ###
 
 node_modules/
+
+### YOLO Service ###
+yolo-service/
