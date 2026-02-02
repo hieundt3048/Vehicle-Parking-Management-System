@@ -3,7 +3,7 @@ package com.parking.system.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,17 +23,15 @@ import jakarta.validation.Valid;
 /**
  * Controller xử lý authentication và user managemen
  * Tuân thủ Single Responsibility: chỉ xử lý HTTP requests/responses
- * Business logic được delegate cho Service layer
  */
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174", "http://localhost:3000"})
 public class AuthController {
     
     private final UserService userService;
     private final TokenService tokenService;
     
-    // Constructor injection - tốt hơn field injection, dễ test hơn
+    // Constructor injection
     public AuthController(UserService userService, TokenService tokenService) {
         this.userService = userService;
         this.tokenService = tokenService;
@@ -81,9 +79,6 @@ public class AuthController {
     /**
      * API đăng ký tài khoản mới
      * POST /api/auth/register
-     * 
-     * @Valid annotation tự động validate theo constraints trong RegisterRequest
-     * Exception được handle bởi GlobalExceptionHandler
      */
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<User>> register(@RequestBody @Valid RegisterRequest request) {
@@ -108,9 +103,10 @@ public class AuthController {
      * API lấy danh sách tất cả users
      * GET /api/auth/users
      * 
-     * Chỉ dành cho Admin (được bảo vệ bởi SecurityConfig)
+     * Chỉ dành cho Admin
      */
     @GetMapping("/users")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<List<User>>> getAllUsers() {
         List<User> users = userService.getAllUsers();
         

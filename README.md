@@ -13,6 +13,7 @@ Hệ thống quản lý bãi xe đơn giản với Spring Boot và SQL Server - 
 - Maven
 cd E:\tai\Vehicle Parking Management System\parkingBE\parking-frontend && npm run dev
 cd E:\tai\Vehicle Parking Management System\parkingBE && mvn spring-boot:run
+cd E:\tai\Vehicle Parking Management System\parkingBE\yolo-service && uvicorn app:app --reload --port 5000
 ## Cấu trúc dự án
 
 ```

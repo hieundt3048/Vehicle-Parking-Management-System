@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Receipt, Clock, Calendar, CheckCircle, ArrowLeft, Car, Bike, CreditCard } from 'lucide-react';
 import { ticketsAPI } from '../services/api';
 import UploadPlate from './PlateUpload';
@@ -12,10 +12,38 @@ export default function CheckOut() {
   const [query, setQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [billData, setBillData] = useState(null);
+  const [feeConfig, setFeeConfig] = useState(null);
+  const [isLoadingConfig, setIsLoadingConfig] = useState(true);
+
+  // Load fee configuration khi component mount
+  useEffect(() => {
+    const loadFeeConfig = async () => {
+      try {
+        const response = await feesAPI.getConfig();
+        console.log('Fee config loaded:', response.data?.data);
+        setFeeConfig(response.data?.data);
+      } catch (error) {
+        console.error('Failed to load fee config:', error);
+        // Fallback to default values if API fails
+        const fallbackConfig = {
+          motorbikeFirstBlock: 15000,
+          motorbikeNextHour: 2000,
+          carFirstBlock: 10000,
+          carNextHour: 5000,
+          firstBlockHours: 2
+        };
+        console.log('Using fallback config:', fallbackConfig);
+        setFeeConfig(fallbackConfig);
+      } finally {
+        setIsLoadingConfig(false);
+      }
+    };
+    loadFeeConfig();
+  }, []);
 
   const handleSearch = async (e) => {
     e.preventDefault();
-    if (!query) return;
+    if (!query || !feeConfig) return; // Chờ config load xong
 
     setIsLoading(true);
     
@@ -88,11 +116,19 @@ export default function CheckOut() {
   };
 
   const estimateAmount = (entry, exit, vehicleType) => {
+    if (!feeConfig) {
+      console.warn('Fee config not loaded yet');
+      return 0; // Chờ load config
+    }
+    
     const diffHours = Math.max(1, Math.ceil((exit - entry) / (1000 * 60 * 60)));
     const type = vehicleType?.toUpperCase() === 'CAR' ? 'CAR' : 'MOTORBIKE';
-    const firstBlock = 2;
-    const firstPrice = type === 'MOTORBIKE' ? 5000 : 10000;
-    const extraPrice = type === 'MOTORBIKE' ? 2000 : 5000;
+    const firstBlock = feeConfig.firstBlockHours;
+    const firstPrice = type === 'MOTORBIKE' ? feeConfig.motorbikeFirstBlock : feeConfig.carFirstBlock;
+    const extraPrice = type === 'MOTORBIKE' ? feeConfig.motorbikeNextHour : feeConfig.carNextHour;
+    
+    console.log('Calculating fee:', { diffHours, type, firstBlock, firstPrice, extraPrice, feeConfig });
+    
     if (diffHours <= firstBlock) {
       return firstPrice;
     }
@@ -143,10 +179,15 @@ export default function CheckOut() {
 
               <button
                 type="submit"
-                disabled={!query || isLoading}
+                disabled={!query || isLoading || isLoadingConfig}
                 className="w-full h-14 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-500/30 flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                {isLoading ? (
+                {isLoadingConfig ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Đang tải cấu hình...</span>
+                  </>
+                ) : isLoading ? (
                   <>
                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                     <span>Đang kiểm tra...</span>
