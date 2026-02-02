@@ -1,154 +1,165 @@
 -- ====================================================================
--- SCRIPT RESET HOÀN TOÀN DATABASE - PARKING MANAGEMENT SYSTEM
--- Chạy script này để xóa và tạo lại database từ đầu
+-- SCRIPT RESET DATABASE - PARKING MANAGEMENT SYSTEM
+-- SQL Server Compatible
+-- Database: parkingdb
 -- ====================================================================
 
--- Bước 1: Xóa tất cả tables cũ (nếu có)
-<<<<<<< HEAD
-DROP TABLE IF EXISTS monthly_tickets;
-=======
->>>>>>> master
-DROP TABLE IF EXISTS tickets;
-DROP TABLE IF EXISTS parking_slots;
-DROP TABLE IF EXISTS parking_zones;
-DROP TABLE IF EXISTS users;
+-- Use master to drop and recreate database
+USE master;
+GO
+
+-- Drop database if exists
+IF EXISTS (SELECT name FROM sys.databases WHERE name = N'parkingdb')
+BEGIN
+    ALTER DATABASE parkingdb SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE parkingdb;
+END
+GO
+
+-- Create database
+CREATE DATABASE parkingdb;
+GO
+
+USE parkingdb;
+GO
 
 -- ====================================================================
--- Bước 2: Tạo lại các tables
+-- CREATE TABLES
 -- ====================================================================
 
 -- Table: users
 CREATE TABLE users (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(50) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    full_name VARCHAR(100) NOT NULL,
-    role VARCHAR(20) NOT NULL,
-    active BOOLEAN NOT NULL DEFAULT TRUE,
-    INDEX idx_username (username)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    id BIGINT IDENTITY(1,1) PRIMARY KEY,
+    username NVARCHAR(50) NOT NULL UNIQUE,
+    password NVARCHAR(255) NOT NULL,
+    full_name NVARCHAR(100) NOT NULL,
+    role NVARCHAR(20) NOT NULL,
+    active BIT NOT NULL DEFAULT 1
+);
+GO
+
+CREATE INDEX idx_username ON users(username);
+GO
 
 -- Table: parking_zones
 CREATE TABLE parking_zones (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    vehicle_type VARCHAR(20) NOT NULL,
-    total_slots INT NOT NULL,
-    INDEX idx_vehicle_type (vehicle_type)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    id BIGINT IDENTITY(1,1) PRIMARY KEY,
+    name NVARCHAR(100) NOT NULL,
+    vehicle_type NVARCHAR(20) NOT NULL,
+    total_slots INT NOT NULL
+);
+GO
+
+CREATE INDEX idx_vehicle_type ON parking_zones(vehicle_type);
+GO
 
 -- Table: parking_slots
 CREATE TABLE parking_slots (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    slot_number VARCHAR(20) NOT NULL UNIQUE,
-    status VARCHAR(20) NOT NULL DEFAULT 'AVAILABLE',
+    id BIGINT IDENTITY(1,1) PRIMARY KEY,
+    slot_number NVARCHAR(20) NOT NULL UNIQUE,
+    status NVARCHAR(20) NOT NULL DEFAULT 'AVAILABLE',
     zone_id BIGINT NOT NULL,
-    FOREIGN KEY (zone_id) REFERENCES parking_zones(id) ON DELETE CASCADE,
-    INDEX idx_status (status),
-    INDEX idx_zone_status (zone_id, status)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    CONSTRAINT FK_parking_slots_zone FOREIGN KEY (zone_id) REFERENCES parking_zones(id) ON DELETE CASCADE
+);
+GO
+
+CREATE INDEX idx_status ON parking_slots(status);
+CREATE INDEX idx_zone_status ON parking_slots(zone_id, status);
+GO
 
 -- Table: tickets
 CREATE TABLE tickets (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    license_plate VARCHAR(20) NOT NULL,
-    vehicle_type VARCHAR(20) NOT NULL,
+    id BIGINT IDENTITY(1,1) PRIMARY KEY,
+    license_plate NVARCHAR(20) NOT NULL,
+    vehicle_type NVARCHAR(20) NOT NULL,
     entry_time DATETIME NOT NULL,
     exit_time DATETIME NULL,
     slot_id BIGINT NULL,
-    total_amount DOUBLE NULL,
-    status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
-    FOREIGN KEY (slot_id) REFERENCES parking_slots(id) ON DELETE SET NULL,
-    INDEX idx_license_status (license_plate, status),
-    INDEX idx_status_entry (status, entry_time)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    total_amount FLOAT NULL,
+    status NVARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
+    CONSTRAINT FK_tickets_slot FOREIGN KEY (slot_id) REFERENCES parking_slots(id) ON DELETE SET NULL
+);
+GO
 
-<<<<<<< HEAD
--- Table: monthly_tickets
-CREATE TABLE monthly_tickets (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    card_id VARCHAR(50) NOT NULL UNIQUE,
-    license_plate VARCHAR(20) NOT NULL,
-    vehicle_type VARCHAR(20) NOT NULL,
-    start_date DATE NOT NULL,
-    end_date DATE NOT NULL,
-    monthly_fee DOUBLE NOT NULL,
-    status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
-    INDEX idx_card (card_id),
-    INDEX idx_status (status)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE INDEX idx_license_status ON tickets(license_plate, status);
+CREATE INDEX idx_status_entry ON tickets(status, entry_time);
+GO
 
-=======
->>>>>>> master
 -- ====================================================================
--- Bước 3: Insert dữ liệu mẫu
+-- INSERT SAMPLE DATA
 -- ====================================================================
 
--- 3.1. Tạo users (password: admin123)
+-- Users (password: admin123)
 -- BCrypt hash: $2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG
 INSERT INTO users (username, password, full_name, role, active) VALUES
-('admin', '$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG', 'Administrator', 'ADMIN', true),
-('nhanvien', '$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG', 'Nhân viên', 'EMPLOYEE', true);
+(N'admin', N'$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG', N'Administrator', N'ADMIN', 1),
+(N'nhanvien', N'$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG', N'Nhân viên', N'EMPLOYEE', 1);
+GO
 
--- 3.2. Tạo parking zones
+-- Parking zones
+SET IDENTITY_INSERT parking_zones ON;
 INSERT INTO parking_zones (id, name, vehicle_type, total_slots) VALUES
-(1, 'Khu A - Xe Máy', 'MOTORBIKE', 20),
-(2, 'Khu B - Ô Tô', 'CAR', 12);
+(1, N'Khu A - Xe Máy', N'MOTORBIKE', 20),
+(2, N'Khu B - Ô Tô', N'CAR', 12);
+SET IDENTITY_INSERT parking_zones OFF;
+GO
 
--- 3.3. Tạo parking slots cho Khu A (Xe máy)
+-- Parking slots for Zone A (Motorbike)
 INSERT INTO parking_slots (slot_number, status, zone_id) VALUES
-('A-01', 'AVAILABLE', 1),
-('A-02', 'AVAILABLE', 1),
-('A-03', 'AVAILABLE', 1),
-('A-04', 'AVAILABLE', 1),
-('A-05', 'AVAILABLE', 1),
-('A-06', 'AVAILABLE', 1),
-('A-07', 'AVAILABLE', 1),
-('A-08', 'AVAILABLE', 1),
-('A-09', 'AVAILABLE', 1),
-('A-10', 'AVAILABLE', 1),
-('A-11', 'AVAILABLE', 1),
-('A-12', 'AVAILABLE', 1),
-('A-13', 'AVAILABLE', 1),
-('A-14', 'AVAILABLE', 1),
-('A-15', 'AVAILABLE', 1),
-('A-16', 'AVAILABLE', 1),
-('A-17', 'AVAILABLE', 1),
-('A-18', 'AVAILABLE', 1),
-('A-19', 'AVAILABLE', 1),
-('A-20', 'AVAILABLE', 1);
+(N'A-01', N'AVAILABLE', 1),
+(N'A-02', N'AVAILABLE', 1),
+(N'A-03', N'AVAILABLE', 1),
+(N'A-04', N'AVAILABLE', 1),
+(N'A-05', N'AVAILABLE', 1),
+(N'A-06', N'AVAILABLE', 1),
+(N'A-07', N'AVAILABLE', 1),
+(N'A-08', N'AVAILABLE', 1),
+(N'A-09', N'AVAILABLE', 1),
+(N'A-10', N'AVAILABLE', 1),
+(N'A-11', N'AVAILABLE', 1),
+(N'A-12', N'AVAILABLE', 1),
+(N'A-13', N'AVAILABLE', 1),
+(N'A-14', N'AVAILABLE', 1),
+(N'A-15', N'AVAILABLE', 1),
+(N'A-16', N'AVAILABLE', 1),
+(N'A-17', N'AVAILABLE', 1),
+(N'A-18', N'AVAILABLE', 1),
+(N'A-19', N'AVAILABLE', 1),
+(N'A-20', N'AVAILABLE', 1);
+GO
 
--- 3.4. Tạo parking slots cho Khu B (Ô tô)
+-- Parking slots for Zone B (Car)
 INSERT INTO parking_slots (slot_number, status, zone_id) VALUES
-('B-01', 'AVAILABLE', 2),
-('B-02', 'AVAILABLE', 2),
-('B-03', 'AVAILABLE', 2),
-('B-04', 'AVAILABLE', 2),
-('B-05', 'AVAILABLE', 2),
-('B-06', 'AVAILABLE', 2),
-('B-07', 'AVAILABLE', 2),
-('B-08', 'AVAILABLE', 2),
-('B-09', 'AVAILABLE', 2),
-('B-10', 'AVAILABLE', 2),
-('B-11', 'AVAILABLE', 2),
-('B-12', 'AVAILABLE', 2);
+(N'B-01', N'AVAILABLE', 2),
+(N'B-02', N'AVAILABLE', 2),
+(N'B-03', N'AVAILABLE', 2),
+(N'B-04', N'AVAILABLE', 2),
+(N'B-05', N'AVAILABLE', 2),
+(N'B-06', N'AVAILABLE', 2),
+(N'B-07', N'AVAILABLE', 2),
+(N'B-08', N'AVAILABLE', 2),
+(N'B-09', N'AVAILABLE', 2),
+(N'B-10', N'AVAILABLE', 2),
+(N'B-11', N'AVAILABLE', 2),
+(N'B-12', N'AVAILABLE', 2);
+GO
 
 -- ====================================================================
--- Bước 4: Kiểm tra dữ liệu
+-- VERIFY DATA
 -- ====================================================================
-SELECT '=== USERS ===' as Info;
+SELECT '=== USERS ===' AS Info;
 SELECT id, username, full_name, role, active FROM users;
 
-SELECT '=== PARKING ZONES ===' as Info;
+SELECT '=== PARKING ZONES ===' AS Info;
 SELECT * FROM parking_zones;
 
-SELECT '=== PARKING SLOTS ===' as Info;
-SELECT COUNT(*) as TotalSlots, zone_id, status FROM parking_slots GROUP BY zone_id, status;
+SELECT '=== PARKING SLOTS ===' AS Info;
+SELECT COUNT(*) AS TotalSlots, zone_id, status FROM parking_slots GROUP BY zone_id, status;
 
-SELECT '=== SETUP COMPLETED ===' as Info;
+SELECT '=== SETUP COMPLETED ===' AS Info;
 SELECT 
-    (SELECT COUNT(*) FROM users) as Users,
-    (SELECT COUNT(*) FROM parking_zones) as Zones,
-    (SELECT COUNT(*) FROM parking_slots) as Slots,
-    (SELECT COUNT(*) FROM tickets) as Tickets;
-
+    (SELECT COUNT(*) FROM users) AS Users,
+    (SELECT COUNT(*) FROM parking_zones) AS Zones,
+    (SELECT COUNT(*) FROM parking_slots) AS Slots,
+    (SELECT COUNT(*) FROM tickets) AS Tickets;
+GO

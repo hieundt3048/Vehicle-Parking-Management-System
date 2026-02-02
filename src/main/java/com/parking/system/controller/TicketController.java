@@ -24,7 +24,7 @@ import com.parking.system.service.TicketService;
 @RestController
 @RequestMapping("/api/tickets")
 public class TicketController {
-    
+
     private final TicketService ticketService;
 
     public TicketController(TicketService ticketService) {
@@ -40,8 +40,19 @@ public class TicketController {
     public ResponseEntity<ApiResponse<Ticket>> createTicket(@RequestBody CreateTicketRequest request) {
         Ticket ticket = ticketService.createTicket(request);
         return ResponseEntity.ok(
-            new ApiResponse<>(true, "Tạo vé thành công", ticket)
-        );
+                new ApiResponse<>(true, "Tạo vé thành công", ticket));
+    }
+
+    /**
+     * Lấy vé theo ID
+     * GET /api/tickets/{ticketId}
+     */
+    @GetMapping("/{ticketId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
+    public ResponseEntity<ApiResponse<Ticket>> getTicketById(@PathVariable Long ticketId) {
+        Ticket ticket = ticketService.getTicketById(ticketId);
+        return ResponseEntity.ok(
+                new ApiResponse<>(true, "Lấy thông tin vé thành công", ticket));
     }
 
     /**
@@ -53,8 +64,7 @@ public class TicketController {
     public ResponseEntity<ApiResponse<Ticket>> checkoutTicket(@PathVariable Long ticketId) {
         Ticket ticket = ticketService.processExit(ticketId);
         return ResponseEntity.ok(
-            new ApiResponse<>(true, "Thanh toán thành công", ticket)
-        );
+                new ApiResponse<>(true, "Thanh toán thành công", ticket));
     }
 
     /**
@@ -66,8 +76,7 @@ public class TicketController {
     public ResponseEntity<ApiResponse<List<Ticket>>> getAllTickets() {
         List<Ticket> tickets = ticketService.getAllTickets();
         return ResponseEntity.ok(
-            new ApiResponse<>(true, "Lấy danh sách vé thành công", tickets)
-        );
+                new ApiResponse<>(true, "Lấy danh sách vé thành công", tickets));
     }
 
     /**
@@ -79,8 +88,7 @@ public class TicketController {
     public ResponseEntity<ApiResponse<List<Ticket>>> getActiveTickets() {
         List<Ticket> tickets = ticketService.getActiveTickets();
         return ResponseEntity.ok(
-            new ApiResponse<>(true, "Lấy danh sách vé active thành công", tickets)
-        );
+                new ApiResponse<>(true, "Lấy danh sách vé active thành công", tickets));
     }
 
     /**
@@ -92,7 +100,6 @@ public class TicketController {
     public ResponseEntity<ApiResponse<Ticket>> searchTicketByPlate(@RequestParam String plateNumber) {
         Ticket ticket = ticketService.getActiveTicketByLicensePlate(plateNumber);
         return ResponseEntity.ok(
-            new ApiResponse<>(true, "Tìm thấy vé", ticket)
-        );
+                new ApiResponse<>(true, "Tìm thấy vé", ticket));
     }
 }

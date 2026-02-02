@@ -27,7 +27,7 @@ public class GlobalExceptionHandler {
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
     
     /**
-     * Xử lý ResourceNotFoundException
+     * Xử lý ResourceNotFoundException 404
      */
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiResponse<Object>> handleResourceNotFound(ResourceNotFoundException ex) {
@@ -38,7 +38,7 @@ public class GlobalExceptionHandler {
     }
     
     /**
-     * Xử lý InvalidRequestException
+     * Xử lý InvalidRequestException 400
      */
     @ExceptionHandler(InvalidRequestException.class)
     public ResponseEntity<ApiResponse<Object>> handleInvalidRequest(InvalidRequestException ex) {
@@ -49,7 +49,7 @@ public class GlobalExceptionHandler {
     }
     
     /**
-     * Xử lý UsernameNotFoundException (từ Spring Security)
+     * Xử lý UsernameNotFoundException (từ Spring Security) 401
      */
     @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<ApiResponse<Object>> handleUsernameNotFound(UsernameNotFoundException ex) {
@@ -60,7 +60,7 @@ public class GlobalExceptionHandler {
     }
     
     /**
-     * Xử lý validation errors từ @Valid annotation
+     * Xử lý validation errors 400
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidationExceptions(MethodArgumentNotValidException ex) {
@@ -79,7 +79,7 @@ public class GlobalExceptionHandler {
     }
     
     /**
-     * Xử lý IllegalArgumentException
+     * Xử lý IllegalArgumentException 400
      */
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiResponse<Object>> handleIllegalArgument(IllegalArgumentException ex) {

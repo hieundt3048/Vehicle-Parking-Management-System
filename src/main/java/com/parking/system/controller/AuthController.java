@@ -23,7 +23,6 @@ import jakarta.validation.Valid;
 /**
  * Controller xử lý authentication và user managemen
  * Tuân thủ Single Responsibility: chỉ xử lý HTTP requests/responses
- * Business logic được delegate cho Service layer
  */
 @RestController
 @RequestMapping("/api/auth")
@@ -32,7 +31,7 @@ public class AuthController {
     private final UserService userService;
     private final TokenService tokenService;
     
-    // Constructor injection - tốt hơn field injection, dễ test hơn
+    // Constructor injection
     public AuthController(UserService userService, TokenService tokenService) {
         this.userService = userService;
         this.tokenService = tokenService;
@@ -80,9 +79,6 @@ public class AuthController {
     /**
      * API đăng ký tài khoản mới
      * POST /api/auth/register
-     * 
-     * @Valid annotation tự động validate theo constraints trong RegisterRequest
-     * Exception được handle bởi GlobalExceptionHandler
      */
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<User>> register(@RequestBody @Valid RegisterRequest request) {

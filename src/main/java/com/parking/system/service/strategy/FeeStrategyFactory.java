@@ -9,7 +9,6 @@ import com.parking.system.entity.ParkingZone;
 
 /**
  * Factory Pattern để chọn FeeStrategy phù hợp
- * Kết hợp Strategy Pattern với Factory Pattern
  */
 @Component
 public class FeeStrategyFactory {
@@ -17,7 +16,7 @@ public class FeeStrategyFactory {
     private final Map<ParkingZone.VehicleType, FeeStrategy> strategies = new HashMap<>();
     
     /**
-     * Constructor injection - Spring tự động inject tất cả FeeStrategy implementations
+     * Constructor injection
      */
     public FeeStrategyFactory(MotorbikeFeeStrategy motorbikeStrategy, CarFeeStrategy carStrategy) {
         // Đăng ký các strategy theo loại xe
