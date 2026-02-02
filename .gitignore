@@ -40,6 +40,4 @@ env/
 ### Temporary ignore for development ###
 
 node_modules/
-
-### YOLO Service ###
-yolo-service/
+yolo-service/__pycache__/
