@@ -39,3 +39,5 @@ env/
 
 ### Temporary ignore for development ###
 
+node_modules/
+yolo-service/__pycache__/

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Search, Receipt, Clock, Calendar, CheckCircle, ArrowLeft, Car, Bike, CreditCard } from 'lucide-react';
 import { ticketsAPI } from '../services/api';
+import UploadPlate from './PlateUpload';
 
 /**
  * Check-out Component - Chỉ hiển thị nội dung
@@ -133,6 +134,12 @@ export default function CheckOut() {
                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={24} />
                 </div>
               </div>
+
+              <UploadPlate
+                onDetected={(plate) => {
+                  if (plate) setQuery(plate.toUpperCase());
+                }}
+              />
 
               <button
                 type="submit"
