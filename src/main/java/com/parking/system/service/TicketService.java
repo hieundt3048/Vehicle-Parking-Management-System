@@ -42,9 +42,6 @@ public class TicketService {
         this.ticketFactory = ticketFactory;
     }
     
-    @Autowired
-    private TicketFactory ticketFactory;
-    
     /**
      * Tạo vé xe mới
      */

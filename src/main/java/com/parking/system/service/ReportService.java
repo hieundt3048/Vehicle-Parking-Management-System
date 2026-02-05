@@ -55,6 +55,7 @@ public class ReportService {
 			end
 		);
 
+		//chuyển ticket thành một luồng dũ liệu và ánh xạ sang double
 		double revenue = tickets.stream()
 			.mapToDouble(t -> t.getTotalAmount() != null ? t.getTotalAmount() : 0.0)
 			.sum();

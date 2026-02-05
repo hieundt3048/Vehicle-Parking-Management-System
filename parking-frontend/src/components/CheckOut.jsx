@@ -26,8 +26,8 @@ export default function CheckOut() {
         console.error('Failed to load fee config:', error);
         // Fallback to default values if API fails
         const fallbackConfig = {
-          motorbikeFirstBlock: 15000,
-          motorbikeNextHour: 2000,
+          motorbikeFirstBlock: 5000,
+          motorbikeNextHour: 3000,
           carFirstBlock: 10000,
           carNextHour: 5000,
           firstBlockHours: 2
